@@ -15,6 +15,8 @@ const (
 	ErrorCodeInvalidParameter = 400
 	ErrorCodeUnauthorized     = 401
 	ErrorMsgUnauthorized      = "认证或授权失败"
+	ErrorMsgUnknownAuthorized = "非法登录"
+	ErrorMsgExpireToken       = "token过期"
 	ErrorCodeNotfound         = 404
 	ErrorMsgNotfound          = "无资源错误"
 

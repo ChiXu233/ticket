@@ -3,10 +3,10 @@ package config
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"github.com/jinzhu/configor"
 	log "github.com/wonderivan/logger"
 	"os"
-	"ticket-service/utils"
 )
 
 var Conf *Config
@@ -40,12 +40,14 @@ var DefaultConfig = Config{
 		Password: "",
 		//MaTeachProgressKey: "ma_teach_progress",
 	},
+	JWT: JWT{},
 }
 
 type Config struct {
 	APP   APP   `json:"app" yaml:"app"`
 	DB    DB    `json:"db" yaml:"db"`
 	Redis Redis `json:"redis" yaml:"redis"`
+	JWT   JWT   `json:"jwt" yaml:"jwt"`
 }
 
 type APP struct {
@@ -76,11 +78,17 @@ type Redis struct {
 	Password string `yaml:"password" json:"password"`
 	//MaTeachProgressKey string `yaml:"ma_teach_progress_key" json:"ma_teach_progress_key"`
 }
+type JWT struct {
+	SigningKey  string `json:"signing-key" yaml:"signing-key"`   // jwt签名
+	ExpiresTime string `json:"expires-time" yaml:"expires-time"` // 过期时间
+	BufferTime  string `json:"buffer-time" yaml:"buffer-time"`   // 缓冲时间
+	Issuer      string `json:"issuer" yaml:"issuer"`             // 签发者
+}
 
 func InitConfig() error {
 	Conf = &DefaultConfig
 	confPath := "./conf/config.yml"
-	if utils.FileExist(confPath) {
+	if FileExist(confPath) {
 		c := initConfLoader()
 		log.Debug("加载用户自定义配置...")
 		err := c.Load(Conf, confPath)
@@ -105,7 +113,7 @@ func InitConfig() error {
 	//LoadConfFromEnv(Conf)
 	log.Info("启动配置参数：")
 	PrettyPrint(Conf)
-	if !utils.Exists(Conf.APP.UploadBasePath) {
+	if !Exists(Conf.APP.UploadBasePath) {
 		err := os.MkdirAll(Conf.APP.UploadBasePath, 0777)
 		if err != nil {
 			log.Error("上传文件目录创建失败。err:[%#v]", err)
@@ -155,4 +163,33 @@ func initConfLoader() *configor.Configor {
 func PrettyPrint(data interface{}) {
 	p, _ := json.MarshalIndent(data, "", "\t")
 	log.Info("%s \n", p)
+}
+
+//将util包中文件处理提取出来避免config包导入util，util导入config出现循环导包问题
+
+func FileExist(path string) bool {
+	_, err := os.Stat(path)
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		if os.IsNotExist(err) {
+			return false
+		}
+		fmt.Println(err)
+		return false
+	}
+	return true
+}
+
+// Exists 判断所给路径文件/文件夹是否存在
+func Exists(path string) bool {
+	_, err := os.Stat(path) //os.Stat获取文件信息
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
+	}
+	return true
 }

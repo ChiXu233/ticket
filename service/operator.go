@@ -1,6 +1,9 @@
 package service
 
-import "ticket-service/database"
+import (
+	"github.com/gin-gonic/gin"
+	"ticket-service/database"
+)
 
 var resourceOperator Operator
 
@@ -9,6 +12,7 @@ type ResourceOperator struct {
 }
 
 type Operator interface {
+	Login(c *gin.Context) (map[string]interface{}, error)
 }
 
 func GetOperator() Operator {

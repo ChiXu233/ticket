@@ -40,14 +40,15 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 	contextPath := router.Group(config.Conf.APP.ContextPath)
 
 	v1 := contextPath.Group(ApiVersion)
-	//// api接口注册鉴权中间件
-	//v1.Use(middleware.Auth())
+	// api接口注册鉴权中间件
 	restHandler := handler.NewHandler()
+	v1.POST("/login", restHandler.Login)
+	v1.Use(middleware.JWTAuth())
 	v1.Group("")
 	{
 		v1.GET("/ping", restHandler.Ping)
 	}
-
+	//
 	if config.Conf.APP.Mode == gin.DebugMode {
 		debug := contextPath.Group(ApiDebug)
 		debug.Group("")

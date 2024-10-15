@@ -38,14 +38,19 @@ const (
 
 	ErrorMsgUserNameOrPassword = "用户名尚未注册"
 	ErrorMsgUserLogin          = "用户登录失败"
+	ErrorMsgUserPassword       = "密码错误"
+	ErrorMsgUserChangePass     = "旧密码错误"
 
 	ErrorMsgGetUserInfo  = "用户信息获取失败"
 	ErrorMsgUserLoginOut = "退出登录失败"
 
-	ErrorMsgCreateData = "创建数据失败"
-	ErrorMsgListData   = "获取数据失败"
-	ErrorMsgUpdateData = "修改数据失败"
-	ErrorMsgDeleteData = "删除数据失败"
+	ErrorMsgCreateData     = "创建数据失败"
+	ErrorMsgListData       = "获取数据失败"
+	ErrorMsgUpdateData     = "修改数据失败"
+	ErrorMsgDeleteData     = "删除数据失败"
+	ErrorMsgCreateOrUpdate = "修改/创建数据失败"
+	//ErrorMsgBatchCreate    = "批量创建数据失败"
+	//ErrorMsgCancel         = "取消失败"
 
 	ErrorMsgDataExists          = "记录已经存在"
 	ErrorMsgDataNotExists       = "记录不存在"
@@ -73,6 +78,8 @@ var (
 		ErrorMsgUserLogin:          5011,
 		ErrorMsgGetUserInfo:        5012,
 		ErrorMsgUserLoginOut:       5013,
+		ErrorMsgUserPassword:       5014,
+		ErrorMsgUserChangePass:     5015,
 
 		ErrorMsgTransactionOpen:     6002,
 		ErrorMsgTransactionCommit:   6003,

@@ -1,0 +1,22 @@
+app:
+  name: ticket
+  ip: 0.0.0.0
+  port: 8041
+  mode: release
+
+db:
+  name:         ticket
+  host:         120.46.48.255
+  user:         root
+  password:     root
+  port:         3306
+
+redis:
+  host:         120.46.48.255
+  port:         6379
+  Password:     ""
+jwt:
+  signing-key: root
+  expires-time: 7d
+  buffer-time: 1d
+  issuer: admin

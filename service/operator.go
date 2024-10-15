@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/gin-gonic/gin"
+	"ticket-service/api/apimodel"
 	"ticket-service/database"
 )
 
@@ -12,7 +13,12 @@ type ResourceOperator struct {
 }
 
 type Operator interface {
-	Login(c *gin.Context) (map[string]interface{}, error)
+	Login(c *gin.Context, req apimodel.UserInfoRequest) (*apimodel.LoginResponse, error)
+	Register(req *apimodel.UserInfoRequest) error
+	UpdateUserInfo(req *apimodel.UserInfoRequest) error
+	DeleteUser(req *apimodel.UserInfoRequest) error
+	QueryUserList(req *apimodel.UserInfoRequest) (*apimodel.UserPageResponse, error)
+	ChangePassword(req *apimodel.UserChangePWRequest) error
 }
 
 func GetOperator() Operator {

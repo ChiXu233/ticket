@@ -21,11 +21,12 @@ const (
 )
 
 const (
-	FieldID     = "id"
-	FieldName   = "name"
-	FieldMapId  = "map_id"
-	FieldInfoId = "info_id"
+	TableNameUser = "user"
 
+	FieldUUID         = "uuid"
+	FieldID           = "id"
+	FieldName         = "name"
+	FieldUserName     = "username"
 	FieldPositionKind = "kind"
 
 	FieldCreatedTime = "created_at"

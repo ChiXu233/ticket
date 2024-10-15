@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	log "github.com/wonderivan/logger"
 	"net/http"
@@ -53,9 +54,9 @@ func SendAuthorizedErrorResponse(c *gin.Context, msg string) {
 // SendParameterErrorResponse 非法用户输入
 func SendParameterErrorResponse(c *gin.Context, msg string) {
 	if msg != "" || len(msg) > 0 {
-		Error(c, http.StatusOK, msg, nil)
+		Error(c, http.StatusUnauthorized, msg, nil)
 	} else {
-		Error(c, http.StatusOK, errcode.ErrorMsgPrefixInvalidParameter, nil)
+		Error(c, http.StatusUnauthorized, errcode.ErrorMsgPrefixInvalidParameter, nil)
 	}
 }
 
@@ -64,20 +65,22 @@ func SendServerErrorResponse(c *gin.Context, msg string, err error) {
 	if msg != "" || len(msg) > 0 {
 		// 绕过errMsg收口，查询具体的业务错误信息，如果是预估的，取消收口
 		if err == nil || errcode.GetErrorCode(err.Error()) == errcode.ErrorCodeBusiness {
-			Error(c, http.StatusOK, msg, err)
+			fmt.Println("1")
+			Error(c, http.StatusInternalServerError, msg, err)
 			return
 		}
-		Error(c, http.StatusOK, err.Error(), err)
+		fmt.Println("2")
+		Error(c, http.StatusInternalServerError, err.Error(), err)
 	} else {
-		Error(c, http.StatusOK, errcode.ErrorMsgInternal, err)
+		Error(c, http.StatusInternalServerError, errcode.ErrorMsgInternal, err)
 	}
 }
 
 // SendNotFoundErrorResponse 路由错误
 func SendNotFoundErrorResponse(c *gin.Context, msg string) {
 	if msg != "" || len(msg) > 0 {
-		Error(c, http.StatusOK, msg, nil)
+		Error(c, http.StatusNotFound, msg, nil)
 	} else {
-		Error(c, http.StatusOK, errcode.ErrorMsgNotfound, nil)
+		Error(c, http.StatusNotFound, errcode.ErrorMsgNotfound, nil)
 	}
 }

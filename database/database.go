@@ -2,6 +2,7 @@ package database
 
 import (
 	"github.com/gin-gonic/gin"
+	log "github.com/wonderivan/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -41,7 +42,7 @@ type Database interface {
 func InitDB() error {
 	//const DSN = "gorm:gorm@tcp(127.0.0.1:3306)/gorm?charset=utf8&parseTime=True&loc=Local"
 	DBConfig := config.Conf.DB
-	DSN := DBConfig.User + ":" + DBConfig.Password + "@tcp(" + DBConfig.Host + ":" + DBConfig.Port + ")/" + DBConfig.Name + "?charset=utf8&parseTime=True&loc=UTC"
+	DSN := DBConfig.User + ":" + DBConfig.Password + "@tcp(" + DBConfig.Host + ":" + DBConfig.Port + ")/" + DBConfig.Name + "?charset=utf8&parseTime=True&loc=Local"
 
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       DSN,   // DSN data source name
@@ -84,22 +85,11 @@ func SetMockDatabase(mockDB Database) {
 }
 
 func initTable(db *gorm.DB) {
-	//err := db.AutoMigrate(&model.Map{})
-	//if err != nil {
-	//	log.Error("init table[%s] error.[%s]", model.TableNameMap, err.Error())
-	//}
-	//err = db.AutoMigrate(&model.MapInfo{})
-	//if err != nil {
-	//	log.Error("init table[%s] error.[%s]", model.TableNameMap, err.Error())
-	//}
-	//err = db.AutoMigrate(&model.MapRoutes{})
-	//if err != nil {
-	//	log.Error("init table[%s] error.[%s]", model.TableNameMapRoutes, err.Error())
-	//}
-	//err = db.AutoMigrate(&model.MapRouteNodes{})
-	//if err != nil {
-	//	log.Error("init table[%s] error.[%s]", model.TableNameMapRouteNodes, err.Error())
-	//}
+	err := db.AutoMigrate(&model.User{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameUser, err.Error())
+	}
+
 }
 
 func (db *OrmDB) Begin() (Database, error) {

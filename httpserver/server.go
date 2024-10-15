@@ -47,6 +47,12 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 	v1.Group("")
 	{
 		v1.GET("/ping", restHandler.Ping)
+
+		v1.POST("/register", restHandler.Register)
+		v1.POST("/update_user", restHandler.UpdateUserInfo)
+		v1.GET("/query_user", restHandler.QueryUserList)
+		v1.DELETE("/delete_user/:id", restHandler.DeleteUser)
+		v1.POST("/change_password", restHandler.ChangePassword)
 	}
 	//
 	if config.Conf.APP.Mode == gin.DebugMode {

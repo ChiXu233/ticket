@@ -8,7 +8,7 @@ import (
 	config "ticket-service/conf"
 	"ticket-service/httpserver/app"
 	"ticket-service/httpserver/errcode"
-	"ticket-service/utils"
+	utils "ticket-service/pkg/utils"
 	"time"
 )
 

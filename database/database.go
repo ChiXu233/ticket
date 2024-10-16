@@ -24,6 +24,7 @@ type Database interface {
 	CountEntityByFilter(table string, filter map[string]interface{}, params model.QueryParams, count *int64) error
 	CountAllEntityByFilter(table string, filter map[string]interface{}, params model.QueryParams, count *int64) error
 	GetEntityPluck(table string, filter map[string]interface{}, params model.QueryParams, column string, cols interface{}) error
+	ListEntityAndPreloadByFilter(table string, preTable string, preFilter []string, filter map[string]interface{}, params model.QueryParams, entities interface{}) error
 	CreateEntity(table string, entity interface{}) error
 	BatchCreateEntity(table string, entities interface{}) error
 	SaveEntity(table string, updater interface{}) error
@@ -88,6 +89,10 @@ func initTable(db *gorm.DB) {
 	err := db.AutoMigrate(&model.User{})
 	if err != nil {
 		log.Error("init table[%s] error.[%s]", model.TableNameUser, err.Error())
+	}
+	err = db.AutoMigrate(&model.Train{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameTrain, err.Error())
 	}
 
 }

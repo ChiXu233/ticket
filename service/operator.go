@@ -19,6 +19,11 @@ type Operator interface {
 	DeleteUser(req *apimodel.UserInfoRequest) error
 	QueryUserList(req *apimodel.UserInfoRequest) (*apimodel.UserPageResponse, error)
 	ChangePassword(req *apimodel.UserChangePWRequest) error
+
+	CreateTrain(req *apimodel.TrainInfoRequest) error
+	QueryTrainList(req *apimodel.TrainInfoRequest) (*apimodel.TrainInfoResponse, error)
+	DeleteTrain(req *apimodel.TrainInfoRequest) error
+	UpdateTrain(req *apimodel.TrainInfoRequest) error
 }
 
 func GetOperator() Operator {

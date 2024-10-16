@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"reflect"
 	"ticket-service/database/model"
-	"ticket-service/utils"
+	"ticket-service/pkg/utils"
 )
 
 func ProcessQueryParams(db *gorm.DB, queryParams model.QueryParams) *gorm.DB {
@@ -138,6 +138,20 @@ func (db *OrmDB) GetEntityPluck(table string, filter map[string]interface{}, par
 	tx := db.Table(table).Where(filter).Where(model.FieldDeletedTime, nil)
 	if err := ProcessQueryParams(tx, params).Pluck(column, cols).Error; err != nil {
 		log.Error("[%s]GetFramePluck Error.filter[%#v] params[%#v] colum[%#v] err[%#v]", table, filter, params, column, err)
+		return err
+	}
+	return nil
+}
+
+// ListEntityAndPreloadByFilter 多条件查询实体,左连接 entities是一个实体对象切片对象
+func (db *OrmDB) ListEntityAndPreloadByFilter(table string, preTable string, preFilter []string, filter map[string]interface{}, params model.QueryParams, entities interface{}) error {
+	if reflect.ValueOf(entities).Kind() != reflect.Ptr {
+		return errors.New("ListEntityByFilter [entities] Kind Must Ptr")
+	}
+	defer utils.TimeCost()(fmt.Sprintf("[%s]ListEntityByFilter_timeCost", table))
+	tx := db.Table(table).Where(filter)
+	if err := ProcessQueryParams(tx, params).Preload(preTable, preFilter).Find(entities).Error; err != nil {
+		log.Error("[%s]ListEntityByFilter Error.filter[%#v] params[%#v] err[%#v]", table, filter, params, err)
 		return err
 	}
 	return nil

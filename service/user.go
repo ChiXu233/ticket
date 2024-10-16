@@ -10,7 +10,7 @@ import (
 	config "ticket-service/conf"
 	"ticket-service/database/model"
 	"ticket-service/httpserver/errcode"
-	util "ticket-service/utils"
+	"ticket-service/pkg/utils"
 	"time"
 )
 
@@ -27,11 +27,11 @@ func (operator *ResourceOperator) Login(c *gin.Context, req apimodel.UserInfoReq
 	if opt.ID <= 0 {
 		return nil, fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "用户名")
 	}
-	if ok := util.BcryptCheck(req.Password, opt.Password); !ok {
+	if ok := utils.BcryptCheck(req.Password, opt.Password); !ok {
 		return nil, fmt.Errorf(errcode.ErrorMsgUserPassword)
 	}
-	j := &util.JWT{SigningKey: []byte(config.Conf.JWT.SigningKey)} // 唯一签名
-	claims := j.CreateClaims(util.BaseClaims{
+	j := &utils.JWT{SigningKey: []byte(config.Conf.JWT.SigningKey)} // 唯一签名
+	claims := j.CreateClaims(utils.BaseClaims{
 		UUID:     opt.UUID,
 		ID:       uint64(opt.ID),
 		Username: opt.Username,
@@ -41,7 +41,7 @@ func (operator *ResourceOperator) Login(c *gin.Context, req apimodel.UserInfoReq
 	if err != nil {
 		return nil, fmt.Errorf(errcode.ErrorMsgUnauthorized)
 	}
-	util.SetToken(c, token, int(claims.RegisteredClaims.ExpiresAt.Unix()-time.Now().Unix()))
+	utils.SetToken(c, token, int(claims.RegisteredClaims.ExpiresAt.Unix()-time.Now().Unix()))
 	resp.Load(opt)
 	resp.Token = token
 	resp.ExpireAt = claims.RegisteredClaims.ExpiresAt.Unix() * 1000
@@ -67,7 +67,7 @@ func (operator *ResourceOperator) Register(req *apimodel.UserInfoRequest) error 
 	//保持id自增
 	req.ID = 0
 	//密码哈希加密，设置uuid
-	req.Password = util.BcryptHash(req.Password)
+	req.Password = utils.BcryptHash(req.Password)
 	req.UUID = uuid.Must(uuid.NewV4())
 
 	err = copier.Copy(&opt, req)
@@ -184,10 +184,10 @@ func (operator *ResourceOperator) ChangePassword(req *apimodel.UserChangePWReque
 	if opt.ID <= 0 {
 		return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "uuid")
 	}
-	if ok := util.BcryptCheck(req.OldPass, opt.Password); !ok {
+	if ok := utils.BcryptCheck(req.OldPass, opt.Password); !ok {
 		return fmt.Errorf(errcode.ErrorMsgUserChangePass)
 	}
-	opt.Password = util.BcryptHash(req.NewPass)
+	opt.Password = utils.BcryptHash(req.NewPass)
 	err = operator.Database.SaveEntity(model.TableNameUser, &opt)
 	if err != nil {
 		log.Error("用户数据更新失败. err:[%v]", err)

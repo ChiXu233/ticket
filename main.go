@@ -6,7 +6,7 @@ import (
 	config "ticket-service/conf"
 	"ticket-service/database"
 	"ticket-service/httpserver"
-	"ticket-service/utils/redis"
+	"ticket-service/pkg/utils/redis"
 )
 
 func main() {

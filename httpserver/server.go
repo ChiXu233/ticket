@@ -53,6 +53,10 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 		v1.GET("/query_user", restHandler.QueryUserList)
 		v1.DELETE("/delete_user/:id", restHandler.DeleteUser)
 		v1.POST("/change_password", restHandler.ChangePassword)
+		v1.POST("/create_train", restHandler.CreateTrain)
+		v1.GET("/query_train", restHandler.QueryTrainList)
+		v1.POST("/update_train", restHandler.UpdateTrain)
+		v1.DELETE("/delete_train/:id", restHandler.DeleteTrain)
 	}
 	//
 	if config.Conf.APP.Mode == gin.DebugMode {

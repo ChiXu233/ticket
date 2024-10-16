@@ -21,13 +21,17 @@ const (
 )
 
 const (
-	TableNameUser = "user"
+	TableNameTrain = "train"
+	TableNameUser  = "user"
 
 	FieldUUID         = "uuid"
 	FieldID           = "id"
 	FieldName         = "name"
 	FieldUserName     = "username"
 	FieldPositionKind = "kind"
+
+	FieldStartPosition = "start"
+	FieldEndPosition   = "end"
 
 	FieldCreatedTime = "created_at"
 	FieldUpdatedTime = "updated_at"

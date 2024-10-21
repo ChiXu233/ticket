@@ -19,11 +19,25 @@ type Operator interface {
 	DeleteUser(req *apimodel.UserInfoRequest) error
 	QueryUserList(req *apimodel.UserInfoRequest) (*apimodel.UserPageResponse, error)
 	ChangePassword(req *apimodel.UserChangePWRequest) error
-
 	CreateTrain(req *apimodel.TrainInfoRequest) error
-	QueryTrainList(req *apimodel.TrainInfoRequest) (*apimodel.TrainInfoResponse, error)
+	QueryTrainList(req *apimodel.TrainInfoRequest) (*apimodel.TrainInfoPageResponse, error)
 	DeleteTrain(req *apimodel.TrainInfoRequest) error
 	UpdateTrain(req *apimodel.TrainInfoRequest) error
+
+	//车站
+	CreateStation(req *apimodel.TrainStationRequest) error
+	QueryStationList(req *apimodel.TrainStationRequest) (*apimodel.StationInfoPageResponse, error)
+	DeleteStation(req *apimodel.TrainStationRequest) error
+	UpdateStation(req *apimodel.TrainStationRequest) error
+
+	//行驶计划
+	CreateTrainSchedule(req *apimodel.TrainScheduleRequest) (int, error)
+
+	//停靠信息
+	CreateTrainStopInfo(req *apimodel.TrainStopInfoRequest) error
+
+	//座位
+	CreateTrainSeatInfo(req *apimodel.TrainSeatInfoRequest) error
 }
 
 func GetOperator() Operator {

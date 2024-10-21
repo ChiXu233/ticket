@@ -21,17 +21,27 @@ const (
 )
 
 const (
-	TableNameTrain = "train"
-	TableNameUser  = "user"
+	TableNameUser          = "user"
+	TableNameTrain         = "train"
+	TableNameStation       = "train_station"
+	TableNameTrainSchedule = "train_schedule"
+	TableNameTrainStop     = "train_stop"
+	TableNameTrainSeat     = "train_seat"
 
-	FieldUUID         = "uuid"
-	FieldID           = "id"
-	FieldName         = "name"
-	FieldUserName     = "username"
-	FieldPositionKind = "kind"
+	FieldUUID          = "uuid"
+	FieldID            = "id"
+	FieldName          = "name"
+	FieldUserName      = "username"
+	FieldPositionKind  = "kind"
+	FieldTrainID       = "train_id"
+	FieldScheduleID    = "schedule_id"
+	FieldDepartureTime = "departure_date"
 
-	FieldStartPosition = "start"
-	FieldEndPosition   = "end"
+	FieldStartPosition   = "start"
+	FieldEndPosition     = "end"
+	FieldStationCode     = "code"
+	FieldStationCity     = "city"
+	FieldStationProvince = "province"
 
 	FieldCreatedTime = "created_at"
 	FieldUpdatedTime = "updated_at"

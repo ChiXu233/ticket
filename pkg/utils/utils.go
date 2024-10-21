@@ -444,8 +444,9 @@ func GetStringOfStruct(obj interface{}) string {
 }
 
 // 字符串转日期
-func ParseTime(layout string, timeStr string) (time.Time, error) {
-	return time.Parse(layout, timeStr)
+func ParseTime(layout string, timeStr string) time.Time {
+	parse, _ := time.Parse(layout, timeStr)
+	return parse
 }
 
 // SliceIntIsRepeat int类型的slice是否有重复

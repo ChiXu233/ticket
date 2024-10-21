@@ -43,7 +43,7 @@ type Database interface {
 func InitDB() error {
 	//const DSN = "gorm:gorm@tcp(127.0.0.1:3306)/gorm?charset=utf8&parseTime=True&loc=Local"
 	DBConfig := config.Conf.DB
-	DSN := DBConfig.User + ":" + DBConfig.Password + "@tcp(" + DBConfig.Host + ":" + DBConfig.Port + ")/" + DBConfig.Name + "?charset=utf8&parseTime=True&loc=Local"
+	DSN := DBConfig.User + ":" + DBConfig.Password + "@tcp(" + DBConfig.Host + ":" + DBConfig.Port + ")/" + DBConfig.Name + "?charset=utf8mb4&parseTime=True&loc=UTC"
 
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       DSN,   // DSN data source name
@@ -93,6 +93,22 @@ func initTable(db *gorm.DB) {
 	err = db.AutoMigrate(&model.Train{})
 	if err != nil {
 		log.Error("init table[%s] error.[%s]", model.TableNameTrain, err.Error())
+	}
+	err = db.AutoMigrate(&model.Station{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameStation, err.Error())
+	}
+	err = db.AutoMigrate(&model.TrainSchedule{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameTrainSchedule, err.Error())
+	}
+	err = db.AutoMigrate(&model.TrainStop{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameTrainStop, err.Error())
+	}
+	err = db.AutoMigrate(&model.TrainSeat{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameTrainSeat, err.Error())
 	}
 
 }

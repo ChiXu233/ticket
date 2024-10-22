@@ -36,7 +36,7 @@ func (handler *RestHandler) Register(c *gin.Context) {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
 	}
-	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
+	err = req.Valid(apimodel.ValidOptCreate)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
 		return
@@ -62,7 +62,7 @@ func (handler *RestHandler) UpdateUserInfo(c *gin.Context) {
 		app.SendParameterErrorResponse(c, err.Error())
 		return
 	}
-	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
+	err = req.Valid(apimodel.ValidOptUpdate)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
 		return
@@ -122,7 +122,7 @@ func (handler *RestHandler) ChangePassword(c *gin.Context) {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
 	}
-	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
+	err = req.Valid(apimodel.ValidOptCreate)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
 		return

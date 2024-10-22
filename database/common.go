@@ -129,6 +129,38 @@ func (db *OrmDB) ListEntityByFilter(table string, filter map[string]interface{},
 	return nil
 }
 
+// ListEntityByFilter 多条件查询实体 entities是一个实体对象切片对象 //传入的selector 是结构体中的字段名
+func (db *OrmDB) ListEntityBySelectFilter(table string, filter map[string]interface{}, params model.QueryParams, entities interface{}, selector []string) error {
+	if reflect.ValueOf(entities).Kind() != reflect.Ptr {
+		return errors.New("ListEntityByFilter [entities] Kind Must Ptr")
+	}
+	defer utils.TimeCost()(fmt.Sprintf("[%s]ListEntityByFilter_timeCost", table))
+	tx := db.Table(table).Where(filter)
+	if err := ProcessQueryParams(tx, params).Select(selector).Find(entities).Error; err != nil {
+		log.Error("[%s]ListEntityByFilter Error.filter[%#v] params[%#v] err[%#v]", table, filter, params, err)
+		return err
+	}
+	return nil
+}
+
+func (db *OrmDB) PreloadEntityByFilter(table string, filter map[string]interface{}, params model.QueryParams, entities interface{}, preloads []string) error {
+	if reflect.ValueOf(entities).Kind() != reflect.Ptr {
+		return errors.New("PreloadEntityByFilter [entities] Kind Must Ptr")
+	}
+	defer utils.TimeCost()(fmt.Sprintf("[%s]PreloadEntityByFilter", table))
+	tx := db.Table(table).Where(filter)
+	var PreLoadFilter *gorm.DB
+	PreLoadFilter = ProcessQueryParams(tx, params)
+	for _, v := range preloads {
+		PreLoadFilter = PreLoadFilter.Preload(v)
+	}
+	if err := PreLoadFilter.Debug().Find(entities).Error; err != nil {
+		log.Error("[%s]PreloadEntityByFilter Error.filter[%#v] params[%#v] err[%#v]", table, filter, params, err)
+		return err
+	}
+	return nil
+}
+
 // GetEntityPluck 获取表的某一列数据 cols需要是切片的地址
 func (db *OrmDB) GetEntityPluck(table string, filter map[string]interface{}, params model.QueryParams, column string, cols interface{}) error {
 	if reflect.ValueOf(cols).Kind() != reflect.Ptr {
@@ -138,20 +170,6 @@ func (db *OrmDB) GetEntityPluck(table string, filter map[string]interface{}, par
 	tx := db.Table(table).Where(filter).Where(model.FieldDeletedTime, nil)
 	if err := ProcessQueryParams(tx, params).Pluck(column, cols).Error; err != nil {
 		log.Error("[%s]GetFramePluck Error.filter[%#v] params[%#v] colum[%#v] err[%#v]", table, filter, params, column, err)
-		return err
-	}
-	return nil
-}
-
-// ListEntityAndPreloadByFilter 多条件查询实体,左连接 entities是一个实体对象切片对象
-func (db *OrmDB) ListEntityAndPreloadByFilter(table string, preTable string, preFilter []string, filter map[string]interface{}, params model.QueryParams, entities interface{}) error {
-	if reflect.ValueOf(entities).Kind() != reflect.Ptr {
-		return errors.New("ListEntityByFilter [entities] Kind Must Ptr")
-	}
-	defer utils.TimeCost()(fmt.Sprintf("[%s]ListEntityByFilter_timeCost", table))
-	tx := db.Table(table).Where(filter)
-	if err := ProcessQueryParams(tx, params).Preload(preTable, preFilter).Find(entities).Error; err != nil {
-		log.Error("[%s]ListEntityByFilter Error.filter[%#v] params[%#v] err[%#v]", table, filter, params, err)
 		return err
 	}
 	return nil

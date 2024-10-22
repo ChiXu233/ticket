@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"ticket-service/api/apimodel"
 	"ticket-service/httpserver/app"
@@ -17,7 +16,7 @@ func (handler *RestHandler) CreateTrain(c *gin.Context) {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
 	}
-	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
+	err = req.Valid(apimodel.ValidOptCreate)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
 		return
@@ -37,7 +36,7 @@ func (handler *RestHandler) UpdateTrain(c *gin.Context) {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
 	}
-	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
+	err = req.Valid(apimodel.ValidOptUpdate)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
 		return
@@ -100,7 +99,7 @@ func (handler *RestHandler) CreateStation(c *gin.Context) {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
 	}
-	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
+	err = req.Valid(apimodel.ValidOptCreate)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
 		return
@@ -120,7 +119,7 @@ func (handler *RestHandler) UpdateStation(c *gin.Context) {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
 	}
-	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
+	err = req.Valid(apimodel.ValidOptUpdate)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
 		return
@@ -174,8 +173,7 @@ func (handler *RestHandler) QueryStationList(c *gin.Context) {
 	app.Success(c, resp)
 }
 
-//运行计划
-
+// 运行计划
 func (handler *RestHandler) CreateTrainSchedule(c *gin.Context) {
 	var req apimodel.TrainScheduleRequest
 	err := c.ShouldBindJSON(&req)
@@ -183,7 +181,7 @@ func (handler *RestHandler) CreateTrainSchedule(c *gin.Context) {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
 	}
-	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
+	err = req.Valid(apimodel.ValidOptCreate)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
 		return
@@ -198,66 +196,67 @@ func (handler *RestHandler) CreateTrainSchedule(c *gin.Context) {
 	app.Success(c, resp)
 }
 
-//func (handler *RestHandler) UpdateStation(c *gin.Context) {
-//	var req apimodel.TrainStationRequest
-//	err := c.ShouldBindJSON(&req)
-//	if err != nil {
-//		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
-//		return
-//	}
-//	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
-//	if err != nil {
-//		app.SendParameterErrorResponse(c, err.Error())
-//		return
-//	}
-//	err = handler.Operator.UpdateStation(&req)
-//	if err != nil {
-//		app.SendServerErrorResponse(c, errcode.ErrorMsgUpdateData, err)
-//		return
-//	}
-//	app.Success(c, nil)
-//}
-//
-//func (handler *RestHandler) DeleteStation(c *gin.Context) {
-//	var req apimodel.TrainStationRequest
-//	err := c.ShouldBindUri(&req)
-//	if err != nil {
-//		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
-//		return
-//	}
-//	err = req.Valid(apimodel.ValidOptDel)
-//	if err != nil {
-//		app.SendParameterErrorResponse(c, err.Error())
-//		return
-//	}
-//	err = handler.Operator.DeleteStation(&req)
-//	if err != nil {
-//		app.SendServerErrorResponse(c, errcode.ErrorMsgDeleteData, err)
-//		return
-//	}
-//	app.Success(c, nil)
-//}
-//func (handler *RestHandler) QueryStationList(c *gin.Context) {
-//	req := apimodel.TrainStationRequest{
-//		PaginationRequest: apimodel.DefaultPaginationRequest,
-//	}
-//	err := c.ShouldBindQuery(&req)
-//	if err != nil {
-//		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
-//		return
-//	}
-//	err = req.Valid(apimodel.ValidOptList)
-//	if err != nil {
-//		app.SendParameterErrorResponse(c, err.Error())
-//		return
-//	}
-//	resp, err := handler.Operator.QueryStationList(&req)
-//	if err != nil {
-//		app.SendServerErrorResponse(c, errcode.ErrorMsgListData, err)
-//		return
-//	}
-//	app.Success(c, resp)
-//}
+func (handler *RestHandler) UpdateTrainSchedule(c *gin.Context) {
+	var req apimodel.TrainScheduleRequest
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
+		return
+	}
+	err = req.Valid(apimodel.ValidOptUpdate)
+	if err != nil {
+		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	err = handler.Operator.UpdateTrainSchedule(&req)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgUpdateData, err)
+		return
+	}
+	app.Success(c, nil)
+}
+
+func (handler *RestHandler) DeleteTrainSchedule(c *gin.Context) {
+	var req apimodel.TrainScheduleRequest
+	err := c.ShouldBindUri(&req)
+	if err != nil {
+		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
+		return
+	}
+	err = req.Valid(apimodel.ValidOptDel)
+	if err != nil {
+		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	err = handler.Operator.DeleteTrainSchedule(&req)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgDeleteData, err)
+		return
+	}
+	app.Success(c, nil)
+}
+
+func (handler *RestHandler) QueryTrainScheduleList(c *gin.Context) {
+	req := apimodel.TrainScheduleRequest{
+		PaginationRequest: apimodel.DefaultPaginationRequest,
+	}
+	err := c.ShouldBindQuery(&req)
+	if err != nil {
+		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
+		return
+	}
+	err = req.Valid(apimodel.ValidOptList)
+	if err != nil {
+		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	resp, err := handler.Operator.QueryTrainScheduleList(&req)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgListData, err)
+		return
+	}
+	app.Success(c, resp)
+}
 
 // 停靠信息
 func (handler *RestHandler) CreateTrainStopInfo(c *gin.Context) {
@@ -267,7 +266,7 @@ func (handler *RestHandler) CreateTrainStopInfo(c *gin.Context) {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
 	}
-	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
+	err = req.Valid(apimodel.ValidOptCreate)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
 		return
@@ -280,6 +279,68 @@ func (handler *RestHandler) CreateTrainStopInfo(c *gin.Context) {
 	app.Success(c, nil)
 }
 
+func (handler *RestHandler) UpdateTrainStopInfo(c *gin.Context) {
+	var req apimodel.TrainStopInfoRequest
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
+		return
+	}
+	err = req.Valid(apimodel.ValidOptUpdate)
+	if err != nil {
+		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	err = handler.Operator.UpdateTrainStopInfo(&req)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgUpdateData, err)
+		return
+	}
+	app.Success(c, nil)
+}
+
+func (handler *RestHandler) DeleteTrainStopInfo(c *gin.Context) {
+	var req apimodel.TrainStopInfoRequest
+	err := c.ShouldBindUri(&req)
+	if err != nil {
+		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
+		return
+	}
+	err = req.Valid(apimodel.ValidOptDel)
+	if err != nil {
+		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	err = handler.Operator.DeleteTrainStopInfo(&req)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgDeleteData, err)
+		return
+	}
+	app.Success(c, nil)
+}
+
+func (handler *RestHandler) QueryTrainStopInfoList(c *gin.Context) {
+	req := apimodel.TrainStopInfoRequest{
+		PaginationRequest: apimodel.DefaultPaginationRequest,
+	}
+	err := c.ShouldBindQuery(&req)
+	if err != nil {
+		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
+		return
+	}
+	err = req.Valid(apimodel.ValidOptList)
+	if err != nil {
+		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	resp, err := handler.Operator.QueryTrainStopInfoList(&req)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgListData, err)
+		return
+	}
+	app.Success(c, resp)
+}
+
 // 座位
 func (handler *RestHandler) CreateTrainSeatInfo(c *gin.Context) {
 	var req apimodel.TrainSeatInfoRequest
@@ -288,8 +349,7 @@ func (handler *RestHandler) CreateTrainSeatInfo(c *gin.Context) {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
 	}
-	fmt.Println(req)
-	err = req.Valid(apimodel.ValidOptCreateOrUpdate)
+	err = req.Valid(apimodel.ValidOptCreate)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
 		return
@@ -297,6 +357,68 @@ func (handler *RestHandler) CreateTrainSeatInfo(c *gin.Context) {
 	err = handler.Operator.CreateTrainSeatInfo(&req)
 	if err != nil {
 		app.SendServerErrorResponse(c, errcode.ErrorMsgCreateData, err)
+		return
+	}
+	app.Success(c, nil)
+}
+
+func (handler *RestHandler) DeleteTrainSeatInfo(c *gin.Context) {
+	var req apimodel.TrainSeatInfoRequest
+	err := c.ShouldBindUri(&req)
+	if err != nil {
+		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
+		return
+	}
+	err = req.Valid(apimodel.ValidOptDel)
+	if err != nil {
+		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	err = handler.Operator.DeleteTrainSeatInfo(&req)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgDeleteData, err)
+		return
+	}
+	app.Success(c, nil)
+}
+
+func (handler *RestHandler) QueryTrainSeatInfoList(c *gin.Context) {
+	req := apimodel.TrainSeatInfoRequest{
+		PaginationRequest: apimodel.DefaultPaginationRequest,
+	}
+	err := c.ShouldBindQuery(&req)
+	if err != nil {
+		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
+		return
+	}
+	err = req.Valid(apimodel.ValidOptList)
+	if err != nil {
+		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	resp, err := handler.Operator.QueryTrainSeatInfoList(&req)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgListData, err)
+		return
+	}
+	app.Success(c, resp)
+}
+
+func (handler *RestHandler) UpdateTrainSeatInfo(c *gin.Context) {
+	var req apimodel.TrainSeatInfoRequest
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
+		return
+	}
+	err = req.Valid(apimodel.ValidOptUpdate)
+	if err != nil {
+		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	err = handler.Operator.UpdateTrainSeatInfo(&req)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgUpdateData, err)
 		return
 	}
 	app.Success(c, nil)

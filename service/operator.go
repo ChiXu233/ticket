@@ -13,12 +13,15 @@ type ResourceOperator struct {
 }
 
 type Operator interface {
+	//用户
 	Login(c *gin.Context, req apimodel.UserInfoRequest) (*apimodel.LoginResponse, error)
 	Register(req *apimodel.UserInfoRequest) error
 	UpdateUserInfo(req *apimodel.UserInfoRequest) error
 	DeleteUser(req *apimodel.UserInfoRequest) error
 	QueryUserList(req *apimodel.UserInfoRequest) (*apimodel.UserPageResponse, error)
 	ChangePassword(req *apimodel.UserChangePWRequest) error
+
+	//车辆
 	CreateTrain(req *apimodel.TrainInfoRequest) error
 	QueryTrainList(req *apimodel.TrainInfoRequest) (*apimodel.TrainInfoPageResponse, error)
 	DeleteTrain(req *apimodel.TrainInfoRequest) error
@@ -32,12 +35,24 @@ type Operator interface {
 
 	//行驶计划
 	CreateTrainSchedule(req *apimodel.TrainScheduleRequest) (int, error)
+	DeleteTrainSchedule(req *apimodel.TrainScheduleRequest) error
+	UpdateTrainSchedule(req *apimodel.TrainScheduleRequest) error
+	QueryTrainScheduleList(req *apimodel.TrainScheduleRequest) (*apimodel.TrainSchedulePageResponse, error)
 
 	//停靠信息
 	CreateTrainStopInfo(req *apimodel.TrainStopInfoRequest) error
+	QueryTrainStopInfoList(req *apimodel.TrainStopInfoRequest) (*apimodel.TrainStopInfoPageResponse, error)
+	DeleteTrainStopInfo(req *apimodel.TrainStopInfoRequest) error
+	UpdateTrainStopInfo(req *apimodel.TrainStopInfoRequest) error
 
 	//座位
 	CreateTrainSeatInfo(req *apimodel.TrainSeatInfoRequest) error
+	DeleteTrainSeatInfo(req *apimodel.TrainSeatInfoRequest) error
+	QueryTrainSeatInfoList(req *apimodel.TrainSeatInfoRequest) (*apimodel.TrainSeatInfoPageResponse, error)
+	UpdateTrainSeatInfo(req *apimodel.TrainSeatInfoRequest) error
+
+	//StationMap
+	LoadStation_CodeMap() error
 }
 
 func GetOperator() Operator {

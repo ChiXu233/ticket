@@ -22,8 +22,9 @@ type Station struct {
 type TrainSchedule struct {
 	Model
 	TrainID       int         `json:"train_id" gorm:"index;not null;comment:列车id"`
+	TrainName     string      `json:"train_name" gorm:"index;comment:车号"`
 	DepartureDate time.Time   `json:"departure_date" gorm:"index;not null;comment:出发日期"`
-	EndDate       time.Time   `json:"end_date" gorm:"index";comment:"结束日期"`
+	EndDate       time.Time   `json:"end_date" gorm:"index;comment:结束日期"`
 	Stops         []TrainStop `json:"stops" gorm:"foreignKey:ScheduleID"`
 	Seats         []TrainSeat `json:"seats" gorm:"foreignKey:ScheduleID"`
 }

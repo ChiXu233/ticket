@@ -2,7 +2,7 @@ app:
   name: ticket
   ip: 0.0.0.0
   port: 8041
-  mode: release
+  mode: debug
 
 db:
   name:         ticket

@@ -43,7 +43,7 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 	// api接口注册鉴权中间件
 	restHandler := handler.NewHandler()
 	v1.POST("/login", restHandler.Login)
-	v1.Use(middleware.JWTAuth())
+	//v1.Use(middleware.JWTAuth())
 	v1.Group("")
 	{
 		v1.GET("/ping", restHandler.Ping)
@@ -53,10 +53,15 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 		v1.GET("/query_user", restHandler.QueryUserList)
 		v1.DELETE("/delete_user/:id", restHandler.DeleteUser)
 		v1.POST("/change_password", restHandler.ChangePassword)
+
+		//@TODO 基本功能实现完成，待测试
+		//列车基本信息
 		v1.POST("/create_train_info", restHandler.CreateTrain)
 		v1.GET("/query_train_info", restHandler.QueryTrainList)
 		v1.POST("/update_train_info", restHandler.UpdateTrain)
 		v1.DELETE("/delete_train_info/:id", restHandler.DeleteTrain)
+
+		//车站信息
 		v1.POST("/create_train_station", restHandler.CreateStation)
 		v1.GET("/query_train_station", restHandler.QueryStationList)
 		v1.POST("/update_train_station", restHandler.UpdateStation)
@@ -64,9 +69,23 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 
 		//创建列车行驶计划
 		v1.POST("/create_train_schedule", restHandler.CreateTrainSchedule)
-		v1.POST("/create_train_stop/", restHandler.CreateTrainStopInfo)
-		v1.POST("/create_train_seat/", restHandler.CreateTrainSeatInfo)
+		v1.POST("/create_train_stop", restHandler.CreateTrainStopInfo)
+		v1.POST("/create_train_seat", restHandler.CreateTrainSeatInfo)
 
+		//行驶计划
+		v1.DELETE("/delete_train_schedule/:id", restHandler.DeleteTrainSchedule)
+		v1.GET("/query_train_schedule", restHandler.QueryTrainScheduleList)
+		v1.POST("/update_train_schedule", restHandler.UpdateTrainSchedule)
+
+		//停靠信息
+		v1.DELETE("/delete_train_stop/:id", restHandler.DeleteTrainStopInfo)
+		v1.GET("/query_train_stop", restHandler.QueryTrainStopInfoList)
+		v1.POST("/update_train_stop/", restHandler.UpdateTrainStopInfo)
+		//
+		//座位信息
+		v1.DELETE("/delete_train_seat/:id", restHandler.DeleteTrainSeatInfo)
+		v1.GET("/query_train_seat", restHandler.QueryTrainSeatInfoList)
+		v1.POST("/update_train_seat/", restHandler.UpdateTrainSeatInfo)
 	}
 	//
 	if config.Conf.APP.Mode == gin.DebugMode {

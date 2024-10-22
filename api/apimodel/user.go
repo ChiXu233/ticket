@@ -107,8 +107,24 @@ func (resp *UserPageResponse) Load(total int64, list []model.User) {
 // Handler valid
 
 func (req UserInfoRequest) Valid(opt string) error {
-	if opt == ValidOptCreateOrUpdate {
+	if opt == ValidOptCreate {
 		if req.ID < 0 {
+			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "id")
+		}
+		if req.Username == "" {
+			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "username")
+		}
+		if req.Password == "" {
+			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "password")
+		}
+		if req.Phone == "" {
+			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "phone")
+		}
+		if req.Email == "" {
+			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "email")
+		}
+	} else if opt == ValidOptUpdate {
+		if req.ID <= 0 {
 			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "id")
 		}
 		if req.Username == "" {
@@ -142,7 +158,7 @@ func (req UserInfoRequest) Valid(opt string) error {
 }
 
 func (req UserChangePWRequest) Valid(opt string) error {
-	if opt == ValidOptCreateOrUpdate {
+	if opt == ValidOptCreate {
 		if req.ID < 0 {
 			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "id")
 		}

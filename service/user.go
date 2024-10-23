@@ -68,9 +68,8 @@ func (operator *ResourceOperator) Register(req *apimodel.UserInfoRequest) error 
 	req.ID = 0
 	//密码哈希加密，设置uuid
 	req.Password = utils.BcryptHash(req.Password)
-	req.UUID = uuid.Must(uuid.NewV4())
-
 	err = copier.Copy(&opt, req)
+	opt.UUID = uuid.Must(uuid.NewV4())
 	if err != nil {
 		return err
 	}
@@ -101,7 +100,7 @@ func (operator *ResourceOperator) UpdateUserInfo(req *apimodel.UserInfoRequest) 
 
 	//保持ID、账号密码不变,暂存createTime（save方法全字段更新）
 	req.ID = opt.ID
-	req.UUID = opt.UUID
+	req.UUID = opt.UUID.String()
 	req.Username = opt.Username
 	req.Password = opt.Password
 	CreateTime := opt.CreatedAt
@@ -134,7 +133,7 @@ func (operator *ResourceOperator) QueryUserList(req *apimodel.UserInfoRequest) (
 	selector := make(map[string]interface{})
 	queryParams := model.QueryParams{}
 	//uuid查
-	if req.UUID != uuid.Nil {
+	if req.UUID != "" {
 		selector[model.FieldUUID] = req.UUID
 	}
 	if req.ID > 0 {

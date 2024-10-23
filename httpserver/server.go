@@ -43,7 +43,7 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 	// api接口注册鉴权中间件
 	restHandler := handler.NewHandler()
 	v1.POST("/login", restHandler.Login)
-	//v1.Use(middleware.JWTAuth())
+	v1.Use(middleware.JWTAuth())
 	v1.Group("")
 	{
 		v1.GET("/ping", restHandler.Ping)

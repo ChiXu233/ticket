@@ -12,7 +12,7 @@ import (
 type UserInfo struct {
 	ID        int       `json:"id"`
 	UUID      uuid.UUID `json:"uuid"`     // 用户UUID
-	Username  string    `json:"userName"` // 用户登录名
+	Username  string    `json:"username"` // 用户登录名
 	Password  string    `json:"password"` // 用户登录密码
 	NickName  string    `json:"nickName"` // 用户昵称
 	Phone     string    `json:"phone" `   // 用户手机号
@@ -29,15 +29,15 @@ type TokenInfo struct {
 //Request struct
 
 type UserInfoRequest struct {
-	ID        int       `json:"id"`
-	UUID      uuid.UUID `json:"uuid" uri:"uuid" form:"uuid"` // 用户UUID
-	Username  string    `json:"userName"`                    // 用户登录名
-	Password  string    `json:"password"`                    // 用户登录密码
-	NickName  string    `json:"nickName"`                    // 用户昵称
-	Phone     string    `json:"phone" `                      // 用户手机号
-	Email     string    `json:"email"`                       // 用户邮箱
-	CreatedAt string    `json:"created_time"`
-	UpdatedAt string    `json:"updated_time"`
+	ID        int    `json:"id" uri:"id" form:"id"`
+	UUID      string `json:"uuid" uri:"uuid" form:"uuid"` // 用户UUID
+	Username  string `json:"username" form:"username"`    // 用户登录名
+	Password  string `json:"password"`                    // 用户登录密码
+	NickName  string `json:"nickName"`                    // 用户昵称
+	Phone     string `json:"phone" `                      // 用户手机号
+	Email     string `json:"email"`                       // 用户邮箱
+	CreatedAt string `json:"created_time"`
+	UpdatedAt string `json:"updated_time"`
 	PaginationRequest
 }
 
@@ -140,8 +140,8 @@ func (req UserInfoRequest) Valid(opt string) error {
 			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "email")
 		}
 	} else if opt == ValidOptDel {
-		if req.UUID == uuid.Nil {
-			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "uuid")
+		if req.ID <= 0 {
+			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "id")
 		}
 	} else if opt == ValidOptLogin {
 		if req.Username == "" {

@@ -93,7 +93,7 @@ type TrainStationRequest struct {
 type TrainScheduleRequest struct {
 	ID            int    `json:"id" uri:"id" form:"id"`
 	TrainID       int    `json:"train_id" uri:"train_id" form:"train_id"` //列车id
-	TrainName     string `json:"train_name"`
+	TrainName     string `json:"train_name" form:"train_name"`
 	DepartureDate string `json:"departure_date"` //出发时间
 	CreatedAt     string `json:"created_time,omitempty"`
 	UpdatedAt     string `json:"updated_time,omitempty"`
@@ -163,6 +163,7 @@ func (t *StationInfo) Load(TrainInfoData model.Station) {
 
 func (t *TrainScheduleInfo) Load(TrainInfoData model.TrainSchedule) {
 	t.ID = TrainInfoData.ID
+	t.TrainID = TrainInfoData.TrainID
 	t.CreatedAt = TrainInfoData.CreatedAt.String()
 	t.UpdatedAt = TrainInfoData.UpdatedAt.String()
 	t.TrainName = TrainInfoData.TrainName

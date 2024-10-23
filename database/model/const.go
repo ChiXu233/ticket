@@ -34,6 +34,7 @@ const (
 	FieldUserName      = "username"
 	FieldPositionKind  = "kind"
 	FieldTrainID       = "train_id"
+	FieldTrainType     = "train_type"
 	FieldTrainName     = "train_name"
 	FieldScheduleID    = "schedule_id"
 	FieldDepartureTime = "departure_date"

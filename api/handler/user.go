@@ -3,7 +3,6 @@ package handler
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/gofrs/uuid/v5"
 	"ticket-service/api/apimodel"
 	"ticket-service/httpserver/app"
 	"ticket-service/httpserver/errcode"
@@ -57,7 +56,7 @@ func (handler *RestHandler) UpdateUserInfo(c *gin.Context) {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
 	}
-	if req.UUID == uuid.Nil {
+	if req.UUID == "" {
 		err = errors.New("参数验证错误[uuid]")
 		app.SendParameterErrorResponse(c, err.Error())
 		return

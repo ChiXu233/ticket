@@ -42,7 +42,7 @@ func (operator *ResourceOperator) CreateTrain(req *apimodel.TrainInfoRequest) er
 		return err
 	}
 
-	if opt.ID > 0 {
+	if opt.ID > 0 && opt.ID != req.ID {
 		return fmt.Errorf(errcode.ErrorMsgSuffixParamExists, "车次")
 	}
 
@@ -68,9 +68,8 @@ func (operator *ResourceOperator) QueryTrainList(req *apimodel.TrainInfoRequest)
 	if req.ID > 0 {
 		selector[model.FieldID] = req.ID
 	}
-	//车号查
-	if req.Name != "" {
-		selector[model.FieldName] = req.Name
+	if req.TrainType != "" {
+		selector[model.FieldTrainType] = req.TrainType
 	}
 
 	var count int64
@@ -89,6 +88,16 @@ func (operator *ResourceOperator) QueryTrainList(req *apimodel.TrainInfoRequest)
 			queryParams.Limit = &req.PageSize
 			offset := (req.PageNo - 1) * req.PageSize
 			queryParams.Offset = &offset
+		}
+
+		//车号模糊查询
+		if req.Name != "" {
+			var keyword []model.Keyword
+			keyword = append(keyword, model.Keyword{Field: model.FieldName, Value: req.Name, Type: 0})
+			subquery := &model.SubQuery{
+				Keywords: keyword,
+			}
+			queryParams.SubQueries = append(queryParams.SubQueries, subquery)
 		}
 		err = operator.Database.ListEntityByFilter(model.TableNameTrain, selector, queryParams, &trains)
 		if err != nil {
@@ -192,10 +201,6 @@ func (operator *ResourceOperator) QueryStationList(req *apimodel.TrainStationReq
 	if req.ID > 0 {
 		selector[model.FieldID] = req.ID
 	}
-	//站名查
-	if req.Name != "" {
-		selector[model.FieldName] = req.Name
-	}
 	if req.Code != "" {
 		selector[model.FieldStationCode] = req.Code
 	}
@@ -221,6 +226,15 @@ func (operator *ResourceOperator) QueryStationList(req *apimodel.TrainStationReq
 			queryParams.Limit = &req.PageSize
 			offset := (req.PageNo - 1) * req.PageSize
 			queryParams.Offset = &offset
+		}
+		//车站名模糊查询
+		if req.Name != "" {
+			var keyword []model.Keyword
+			keyword = append(keyword, model.Keyword{Field: model.FieldName, Value: req.Name, Type: 0})
+			subquery := &model.SubQuery{
+				Keywords: keyword,
+			}
+			queryParams.SubQueries = append(queryParams.SubQueries, subquery)
 		}
 		err = operator.Database.ListEntityByFilter(model.TableNameStation, selector, queryParams, &stations)
 		if err != nil {
@@ -255,7 +269,7 @@ func (operator *ResourceOperator) UpdateStation(req *apimodel.TrainStationReques
 		log.Error("车站名查找失败. err:[%v]", err)
 		return err
 	}
-	if opt.ID > 0 {
+	if opt.ID > 0 && opt.ID != req.ID {
 		return fmt.Errorf(errcode.ErrorMsgSuffixParamExists, "车站名")
 	}
 
@@ -266,7 +280,7 @@ func (operator *ResourceOperator) UpdateStation(req *apimodel.TrainStationReques
 		log.Error("车站编码查找失败. err:[%v]", err)
 		return err
 	}
-	if opt.ID > 0 {
+	if opt.ID > 0 && opt.ID != req.ID {
 		return fmt.Errorf(errcode.ErrorMsgSuffixParamExists, "车站编码")
 	}
 
@@ -418,11 +432,6 @@ func (operator *ResourceOperator) QueryTrainScheduleList(req *apimodel.TrainSche
 	if req.TrainID > 0 {
 		selector[model.FieldTrainID] = req.TrainID
 	}
-	//站名查
-	if req.TrainName != "" {
-		//train_type+train_name
-		selector[model.FieldTrainName] = req.TrainName
-	}
 	if req.DepartureDate != "" {
 		selector[model.FieldDepartureTime] = utils.ParseTime(layout, req.DepartureDate)
 	}
@@ -443,6 +452,15 @@ func (operator *ResourceOperator) QueryTrainScheduleList(req *apimodel.TrainSche
 			queryParams.Limit = &req.PageSize
 			offset := (req.PageNo - 1) * req.PageSize
 			queryParams.Offset = &offset
+		}
+		//车号模糊查询
+		if req.TrainName != "" {
+			var keyword []model.Keyword
+			keyword = append(keyword, model.Keyword{Field: model.FieldTrainName, Value: req.TrainName, Type: 0})
+			subquery := &model.SubQuery{
+				Keywords: keyword,
+			}
+			queryParams.SubQueries = append(queryParams.SubQueries, subquery)
 		}
 		err = operator.Database.PreloadEntityByFilter(model.TableNameTrainSchedule, selector, queryParams, &schedules, []string{"Stops", "Seats"})
 		if err != nil {

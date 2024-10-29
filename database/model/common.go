@@ -32,10 +32,16 @@ const (
 
 type Model struct {
 	ID        int            `json:"id" gorm:"primaryKey;column:id"`
-	CreatedAt LocalTime      `json:"created_time,omitempty" gorm:"column:created_at"`
-	UpdatedAt LocalTime      `json:"updated_time,omitempty" gorm:"column:updated_at"`
+	CreatedAt time.Time      `json:"created_time,omitempty" gorm:"column:created_at"`
+	UpdatedAt time.Time      `json:"updated_time,omitempty" gorm:"column:updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"column:deleted_at"`
 }
+
+//@TODO pg中有此问题，mysql并未发现。
+// 问题描述：使用gorm时，结构体内使用的字段类型是“time.Time”
+//// （1）查询返回结果为“2022-07-03T22:14:02.973528_08:00”，但我们需要“2022-07-03 22:14:02”这样的格式
+//// （2）当时间字段不赋值时，插入到数据库会是“0001-01-01 00：00：00.000000+00：00”,我们不插入默认值
+//// 解决方案：重新定义一个时间类型，并重写MarshalJson方法实现数据解析,重写Value和Scan方法实现存取数据时的相关操作
 
 type LocalTime time.Time
 

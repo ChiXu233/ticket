@@ -43,18 +43,17 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 	// api接口注册鉴权中间件
 	restHandler := handler.NewHandler()
 	v1.POST("/login", restHandler.Login)
+	v1.POST("/register", restHandler.Register)
 	v1.Use(middleware.JWTAuth())
 	v1.Group("")
 	{
-		v1.GET("/ping", restHandler.Ping)
 
-		v1.POST("/register", restHandler.Register)
+		v1.GET("/ping", restHandler.Ping)
 		v1.POST("/update_user", restHandler.UpdateUserInfo)
 		v1.GET("/query_user", restHandler.QueryUserList)
 		v1.DELETE("/delete_user/:id", restHandler.DeleteUser)
 		v1.POST("/change_password", restHandler.ChangePassword)
 
-		//@TODO 基本功能实现完成，待测试
 		//列车基本信息
 		v1.POST("/create_train_info", restHandler.CreateTrain)
 		v1.GET("/query_train_info", restHandler.QueryTrainList)
@@ -86,8 +85,12 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 		v1.DELETE("/delete_train_seat/:id", restHandler.DeleteTrainSeatInfo)
 		v1.GET("/query_train_seat", restHandler.QueryTrainSeatInfoList)
 		v1.POST("/update_train_seat/", restHandler.UpdateTrainSeatInfo)
+
+		//@TODO 待测试
+		//订单
+		v1.POST("/create_user_order", restHandler.CreateUserOrder)
 	}
-	//
+
 	if config.Conf.APP.Mode == gin.DebugMode {
 		debug := contextPath.Group(ApiDebug)
 		debug.Group("")

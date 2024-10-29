@@ -41,11 +41,13 @@ type TrainStop struct {
 // TrainSeat 代表座位信息。
 type TrainSeat struct {
 	Model
-	ScheduleID  int     `json:"schedule_id" gorm:"index;not null;comment:运行计划id"`
-	SeatNums    int     `json:"seat_nums" gorm:"not null;comment:座位数量"`
-	SeatNowNums int     `json:"seat_now_nums" gorm:"comment:库存数量"`
-	SeatType    string  `json:"seat_type" gorm:"not null;comment:座位类别"`
-	Price       float64 `json:"price" gorm:"not null;comment:价格"`
+	ScheduleID int `json:"schedule_id" gorm:"index;not null;comment:运行计划id"`
+	SeatNums   int `json:"seat_nums" gorm:"not null;comment:座位数量"`
+	//@TODO 简单起见票次固定即不会随目的地变化而变化。
+	SeatNowNums int    `json:"seat_now_nums" gorm:"comment:库存数量"`
+	SeatType    string `json:"seat_type" gorm:"not null;comment:座位类别"`
+	//@TODO 车票价格为1站地；订单计算价格=n*price；n为途径多少站
+	Price float64 `json:"price" gorm:"not null;comment:价格"`
 }
 
 func (m *Train) TableName() string {

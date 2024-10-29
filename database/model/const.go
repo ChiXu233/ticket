@@ -27,6 +27,7 @@ const (
 	TableNameTrainSchedule = "train_schedule"
 	TableNameTrainStop     = "train_stop"
 	TableNameTrainSeat     = "train_seat"
+	TableNameUserOrder     = "user_order"
 
 	FieldUUID          = "uuid"
 	FieldID            = "id"

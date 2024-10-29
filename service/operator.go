@@ -51,6 +51,9 @@ type Operator interface {
 	QueryTrainSeatInfoList(req *apimodel.TrainSeatInfoRequest) (*apimodel.TrainSeatInfoPageResponse, error)
 	UpdateTrainSeatInfo(req *apimodel.TrainSeatInfoRequest) error
 
+	//订单
+	CreateUserOrder(req *apimodel.UserOrderRequest) error
+
 	//StationMap
 	LoadStation_CodeMap() error
 }

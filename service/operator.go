@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid/v5"
 	"ticket-service/api/apimodel"
 	"ticket-service/database"
 )
@@ -20,6 +21,7 @@ type Operator interface {
 	DeleteUser(req *apimodel.UserInfoRequest) error
 	QueryUserList(req *apimodel.UserInfoRequest) (*apimodel.UserPageResponse, error)
 	ChangePassword(req *apimodel.UserChangePWRequest) error
+	QueryUserByUUID(uuid uuid.UUID) error
 
 	//车辆
 	CreateTrain(req *apimodel.TrainInfoRequest) error

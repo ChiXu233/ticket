@@ -35,7 +35,6 @@ func main() {
 	if err != nil {
 		panic("init LoadStationMap with error:" + err.Error())
 	}
-
 	server := httpserver.CreateHttpServer()
 	listenAddress := fmt.Sprintf("0.0.0.0:%s", config.Conf.APP.Port)
 	if err = server.Run(listenAddress); err != nil {

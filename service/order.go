@@ -1,54 +1,69 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/gofrs/uuid/v5"
 	log "github.com/wonderivan/logger"
+	"strconv"
+	"sync"
 	"ticket-service/api/apimodel"
 	"ticket-service/database/model"
 	"ticket-service/httpserver/errcode"
+	"ticket-service/pkg/utils/redis"
+	"time"
 )
 
 func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest) error {
 	var opt model.UserOrder
 	var userDB model.User
-	selector := make(map[string]interface{})
+	var mutex sync.Mutex
+	tx, err := operator.TransactionBegin()
+	if err != nil {
+		log.Error("DeleteTrainSchedule TransactionBegin Error.err[%v]", err)
+		return err
+	}
+	defer func() {
+		_ = tx.TransactionRollback()
+	}()
 	//校验用户ID 以及手机号
+
+	selector := make(map[string]interface{})
 	selector[model.FieldID] = req.UserID
-	err := operator.Database.ListEntityByFilter(model.TableNameUser, selector, model.OneQuery, &userDB)
+	err = tx.Database.ListEntityByFilter(model.TableNameUser, selector, model.OneQuery, &userDB)
 	if err != nil {
 		log.Error("用户数据查询失败. err:[%v]", err)
 		return err
 	}
-	if userDB.ID <= 0 {
-		return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "用户")
-	}
-	if userDB.Phone != req.UserPhone {
-		return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "用户手机号")
-	}
 
 	//校验行驶计划
 	var schedule model.TrainSchedule
+
+	selector = make(map[string]interface{})
 	selector[model.FieldID] = req.ScheduleID
-	err = operator.Database.PreloadEntityByFilter(model.TableNameTrainSchedule, selector, model.OneQuery, &schedule, []string{"Stops", "Seats"})
+	err = tx.Database.PreloadEntityByFilter(model.TableNameTrainSchedule, selector, model.OneQuery, &schedule, []string{"Stops", "Seats"})
 	if err != nil {
 		log.Error("行驶计划数据查询失败. err:[%v]", err)
 		return err
 	}
-	if schedule.ID <= 0 {
-		return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "行驶计划")
-	}
 
+	var startInfo, endInfo model.TrainStop
 	//校验所属站点
 	for _, v := range schedule.Stops {
 		if v.ID == req.StartStationID {
 			opt.StartStationID = v.ID
-			opt.StartStationInfo = v
+			startInfo = v
 		} else if v.ID == req.EndStationID {
 			opt.EndStationID = v.ID
-			opt.EndStationInfo = v
+			endInfo = v
 		}
 	}
-
+	if userDB.ID <= 0 {
+		return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "用户")
+	}
+	if schedule.ID <= 0 {
+		return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "行驶计划")
+	}
 	var seatPrice float64
 	for _, v := range schedule.Seats {
 		if v.SeatType == req.SeatType {
@@ -62,16 +77,49 @@ func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest
 	if opt.StartStationID <= 0 || opt.EndStationID <= 0 {
 		return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "起点或终点")
 	}
-
+	opt.UUID = uuid.Must(uuid.NewV4())
 	opt.UserID = userDB.ID
 	opt.UserPhone = userDB.Phone
 	opt.ScheduleID = schedule.ID
-	opt.Price = float64(opt.EndStationInfo.StopOrder-opt.StartStationInfo.StopOrder) * seatPrice
-	opt.DepartureTime = opt.StartStationInfo.DepartureTime
-	opt.ArrivalTime = opt.EndStationInfo.DepartureTime
-	err = operator.Database.CreateEntity(model.TableNameUserOrder, &opt)
+	opt.Price = float64(endInfo.StopOrder-startInfo.StopOrder) * seatPrice
+	opt.DepartureTime = startInfo.DepartureTime
+	opt.ArrivalTime = endInfo.DepartureTime
+	selector = make(map[string]interface{})
+	selector[model.FieldScheduleID] = req.ScheduleID
+	selector[model.FieldSeatType] = req.SeatType
+
+	//加锁
+	mutex.Lock()
+	err = tx.Database.ReduceEntityRowsByFilter(model.TableNameTrainSeat, selector, model.OneQuery, "seat_now_nums", "1")
 	if err != nil {
-		log.Error("创建订单. err:[%v]", err)
+		if err.Error() == "NoNums" {
+			mutex.Unlock()
+			return fmt.Errorf(errcode.ErrorMsgNoTickets, req.SeatType)
+		}
+		log.Error("座位数量-1失败. err:[%v]", err)
+		mutex.Unlock()
+		return err
+	}
+	mutex.Unlock()
+	opt.CreatedAt = time.Now()
+	//新创建的订单写入redis中
+	jsonData, err := json.Marshal(&opt)
+	if err != nil {
+		log.Error("新增订单 序列化失败 Error.err[%v]", err)
+		return err
+	}
+	_, err = redis.RedisClient.HSet("order_"+strconv.Itoa(opt.UserID), opt.UUID.String(), string(jsonData)).Result()
+	if err != nil {
+		log.Error("创建订单.写入redis失败 err:[%v]", err)
+		return err
+	}
+
+	//注册定时任务,写入redis中
+	operator.TimerFreeOrder(time.Minute*10, opt)
+
+	err = tx.TransactionCommit()
+	if err != nil {
+		log.Error("新增订单 TransactionCommit Error.err[%v]", err)
 		return err
 	}
 	return nil

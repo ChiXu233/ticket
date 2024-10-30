@@ -194,3 +194,18 @@ func (operator *ResourceOperator) ChangePassword(req *apimodel.UserChangePWReque
 	}
 	return nil
 }
+
+func (operator *ResourceOperator) QueryUserByUUID(uuid uuid.UUID) error {
+	var user model.User
+	selector := make(map[string]interface{})
+	selector[model.FieldUUID] = uuid
+	err := operator.Database.ListEntityByFilter(model.TableNameUser, selector, model.OneQuery, &user)
+	if err != nil {
+		log.Error("数据查询失败. err:[%v]", err)
+		return err
+	}
+	if user.ID <= 0 {
+		return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "uuid")
+	}
+	return nil
+}

@@ -7,6 +7,8 @@ import (
 	"ticket-service/httpserver/errcode"
 )
 
+//@TODO 查找所有待支付订单、查找历史订单、删除订单、支付订单
+
 func (handler *RestHandler) CreateUserOrder(c *gin.Context) {
 	var req apimodel.UserOrderRequest
 	err := c.ShouldBindJSON(&req)

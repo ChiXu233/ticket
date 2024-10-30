@@ -1,6 +1,7 @@
 package errcode
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -15,6 +16,7 @@ const (
 	ErrorCodeInvalidParameter = 400
 	ErrorCodeUnauthorized     = 401
 	ErrorMsgUnauthorized      = "认证或授权失败"
+	ErrorMsgUnknownToken      = "无法识别token，用户不存在或签发人错误"
 	ErrorMsgUnknownAuthorized = "非法登录"
 	ErrorMsgExpireToken       = "token过期"
 	ErrorCodeNotfound         = 404
@@ -25,6 +27,7 @@ const (
 
 	ErrorMsgSuffixParamExists    = "%v已经存在"
 	ErrorMsgSuffixParamNotExists = "%v不存在"
+	ErrorMsgNoTickets            = "%v已售罄"
 
 	// ErrorCodeBusiness Business Code
 	ErrorCodeBusiness = 9999
@@ -52,6 +55,7 @@ const (
 	//ErrorMsgBatchCreate    = "批量创建数据失败"
 	//ErrorMsgCancel         = "取消失败"
 
+	ErrorMsgTicketNoNum         = "车票售罄"
 	ErrorMsgDataExists          = "记录已经存在"
 	ErrorMsgDataNotExists       = "记录不存在"
 	ErrorMsgTransactionOpen     = "事务开启失败"
@@ -91,11 +95,13 @@ var (
 		ErrorMsgSuffixParamExists,
 		ErrorMsgSuffixParamNotExists,
 		ErrorMsgPrefixInvalidParameter,
+		ErrorMsgNoTickets,
 	}
 
 	// PostProcessingMsg 通用的错误处理信息后置处理
 	PostProcessingMsg = map[string]string{
 		ErrorMsgSuffixParamExists:      ErrorMsgDataExists,
+		ErrorMsgNoTickets:              ErrorMsgTicketNoNum,
 		ErrorMsgSuffixParamNotExists:   ErrorMsgDataNotExists,
 		ErrorMsgPrefixInvalidParameter: ErrorMsgValidateParam,
 	}
@@ -106,6 +112,7 @@ func GetErrorCode(msg string) int {
 	code, ok := ErrCode[msg]
 	if !ok {
 		for _, item := range CommonErrorMsg {
+			fmt.Println(item)
 			t := strings.TrimPrefix(item, "%v")
 			t = strings.TrimSuffix(t, "%v")
 			if strings.Contains(msg, t) {

@@ -24,6 +24,7 @@ type UserOrderInfo struct {
 	Price            float64       `json:"price"`          //订单金额
 	IsDepart         bool          `json:"is_depart"`      //出行状态
 	IsPay            bool          `json:"is_pay"`         //支付状态
+	IsCancel         bool          `json:"is_cancel"`      //是否取消 0:未取消 1:已取消
 	DepartureTime    string        `json:"departure_time"` //出发时间
 	ArrivalTime      string        `json:"arrival_time"`   //到达时间
 	CreatedAt        string        `json:"created_time"`
@@ -43,6 +44,7 @@ type UserOrderRequest struct {
 	Price          float64 `json:"price"`            //订单金额
 	IsDepart       bool    `json:"is_depart"`        //出行状态
 	IsPay          bool    `json:"is_pay"`           //支付状态
+	IsCancel       bool    `json:"is_cancel"`        //是否取消 0:未取消 1:已取消
 	DepartureTime  string  `json:"departure_time"`   //出发时间
 	ArrivalTime    string  `json:"arrival_time"`     //到达时间
 	CreatedAt      string  `json:"created_time"`
@@ -73,6 +75,7 @@ func (t *UserOrderInfo) Load(orderData model.UserOrder) {
 	t.Price = orderData.Price
 	t.IsDepart = orderData.IsDepart
 	t.IsPay = orderData.IsPay
+	t.IsCancel = orderData.IsCancel
 	t.DepartureTime = orderData.DepartureTime.String()
 	t.ArrivalTime = orderData.ArrivalTime.String()
 	t.CreatedAt = orderData.CreatedAt.String()

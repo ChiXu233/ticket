@@ -39,6 +39,7 @@ const (
 	FieldTrainName     = "train_name"
 	FieldScheduleID    = "schedule_id"
 	FieldDepartureTime = "departure_date"
+	FieldSeatType      = "seat_type"
 
 	FieldStartPosition   = "start"
 	FieldEndPosition     = "end"

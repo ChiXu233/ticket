@@ -44,7 +44,7 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 	restHandler := handler.NewHandler()
 	v1.POST("/login", restHandler.Login)
 	v1.POST("/register", restHandler.Register)
-	v1.Use(middleware.JWTAuth())
+	//v1.Use(middleware.JWTAuth())
 	v1.Group("")
 	{
 

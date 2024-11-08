@@ -12,7 +12,9 @@ type UserOrder struct {
 	UserPhone      string    `json:"user_phone" gorm:"index;not null;comment:联系方式"`
 	ScheduleID     int       `json:"schedule_id" gorm:"index;not null;comment:运行计划id"`
 	StartStationID int       `json:"start_station_id" gorm:"index;not null;comment:起点站id"`
+	StartStation   TrainStop `json:"start_station"`
 	EndStationID   int       `json:"end_station_id" gorm:"index;not null;comment:终点站id"`
+	EndStation     TrainStop `json:"end_station"`
 	SeatType       string    `json:"seat_type" gorm:"not null;comment:座位类别"`
 	Price          float64   `json:"price" gorm:"comment:订单金额"`
 	IsDepart       bool      `json:"is_depart" gorm:"default:false"` //出行状态 0:未出发 1:已出发

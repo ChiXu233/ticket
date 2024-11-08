@@ -2,25 +2,26 @@ package service
 
 import (
 	log "github.com/wonderivan/logger"
-	"strconv"
 	"sync"
 	"ticket-service/database/model"
 	"ticket-service/pkg/utils/redis"
 	"time"
 )
 
+const redisKey = "orders_waiting_pay"
+const expireDuration = 10 * time.Minute
+
 // TimerFreeOrder 定时任务server
 func (operator *ResourceOperator) TimerFreeOrder(timeAfter time.Duration, order model.UserOrder) {
 	after := time.After(timeAfter)
 	compel := time.After(timeAfter + 2*time.Minute)
-	redis_key := "order_" + strconv.Itoa(order.UserID)
 	field := order.UUID.String()
 	go func() {
 		for {
 			select {
 			case <-after:
 				//执行流程: 从redis中读取若为空则return 若能拿到说明未支付，则删除订单并且释放库存。
-				exists, err := redis.RedisClient.HExists(redis_key, field).Result()
+				exists, err := redis.RedisClient.HExists(redisKey, field).Result()
 				if err != nil {
 					log.Error("定时任务.读取redis待支付订单失败 err:[%v]", err)
 					return
@@ -35,7 +36,7 @@ func (operator *ResourceOperator) TimerFreeOrder(timeAfter time.Duration, order 
 						_ = tx.TransactionRollback()
 					}()
 					//订单过期后，释放库存，删除redis中键值。
-					_, err = redis.RedisClient.Del(redis_key).Result()
+					_, err = redis.RedisClient.Del(redisKey).Result()
 					if err != nil {
 						log.Error("定时任务.删除redis待支付订单失败 err:[%v]", err)
 						return
@@ -58,12 +59,12 @@ func (operator *ResourceOperator) TimerFreeOrder(timeAfter time.Duration, order 
 					}
 					return
 				} else {
-					log.Error("定时任务.订单非法删除！！！ err:[%v]", err)
+					log.Error("定时任务.订单已取消：[%v] err:[%v]", field, err)
 					return
 				}
 			case <-compel:
 				//执行流程: 从redis中读取若为空则return 若能拿到说明未支付，则删除订单并且释放库存。
-				exists, err := redis.RedisClient.Exists(redis_key).Result()
+				exists, err := redis.RedisClient.Exists(redisKey).Result()
 				if err != nil {
 					log.Error("超时强制释放任务.读取redis待支付订单失败 err:[%v]", err)
 					return
@@ -78,7 +79,7 @@ func (operator *ResourceOperator) TimerFreeOrder(timeAfter time.Duration, order 
 						_ = tx.TransactionRollback()
 					}()
 					//订单过期后，释放库存，删除redis中键值。
-					_, err = redis.RedisClient.Del(redis_key).Result()
+					_, err = redis.RedisClient.HDel(redisKey, field).Result()
 					if err != nil {
 						log.Error("超时强制释放任务.删除redis待支付订单失败 err:[%v]", err)
 						return

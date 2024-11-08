@@ -54,7 +54,11 @@ type Operator interface {
 	UpdateTrainSeatInfo(req *apimodel.TrainSeatInfoRequest) error
 
 	//订单
-	CreateUserOrder(req *apimodel.UserOrderRequest) error
+	CreateUserOrder(req *apimodel.UserOrderRequest) (uuid.UUID, error)
+	QueryUserOrderList(req *apimodel.UserOrderRequest) (*apimodel.UserOrderPageResponse, error)
+	CancelUserOrder(req *apimodel.UserOrderRequest) error
+	DeleteUserOrder(req *apimodel.UserOrderRequest) error
+	PayUserOrder(req *apimodel.UserOrderRequest) error
 
 	//StationMap
 	LoadStation_CodeMap() error

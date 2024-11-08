@@ -1,7 +1,6 @@
 package errcode
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -51,9 +50,9 @@ const (
 	ErrorMsgListData       = "获取数据失败"
 	ErrorMsgUpdateData     = "修改数据失败"
 	ErrorMsgDeleteData     = "删除数据失败"
+	ErrorMsgCancel         = "取消失败"
 	ErrorMsgCreateOrUpdate = "修改/创建数据失败"
 	//ErrorMsgBatchCreate    = "批量创建数据失败"
-	//ErrorMsgCancel         = "取消失败"
 
 	ErrorMsgTicketNoNum         = "车票售罄"
 	ErrorMsgDataExists          = "记录已经存在"
@@ -112,7 +111,6 @@ func GetErrorCode(msg string) int {
 	code, ok := ErrCode[msg]
 	if !ok {
 		for _, item := range CommonErrorMsg {
-			fmt.Println(item)
 			t := strings.TrimPrefix(item, "%v")
 			t = strings.TrimSuffix(t, "%v")
 			if strings.Contains(msg, t) {

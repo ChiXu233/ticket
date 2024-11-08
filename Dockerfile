@@ -6,6 +6,7 @@ COPY ticket .
 
 ADD config.yml .
 ADD log.json .
+ADD logs .
 
 EXPOSE 8041
 

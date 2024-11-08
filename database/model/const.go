@@ -33,6 +33,7 @@ const (
 	FieldID            = "id"
 	FieldName          = "name"
 	FieldUserName      = "username"
+	FieldUserID        = "user_id"
 	FieldPositionKind  = "kind"
 	FieldTrainID       = "train_id"
 	FieldTrainType     = "train_type"
@@ -46,6 +47,10 @@ const (
 	FieldStationCode     = "code"
 	FieldStationCity     = "city"
 	FieldStationProvince = "province"
+
+	FieldOrderIsPay    = "is_pay"
+	FieldOrderIsDepart = "is_depart"
+	FieldOrderIsCancel = "is_cancel"
 
 	FieldCreatedTime = "created_at"
 	FieldUpdatedTime = "updated_at"

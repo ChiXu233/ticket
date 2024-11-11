@@ -18,6 +18,7 @@ const (
 	ValidOptList   = "query"
 	ValidOptDel    = "del"
 	ValidOptLogin  = "login"
+	ValidOptCancel = "cancel"
 )
 
 var (

@@ -31,11 +31,10 @@ func main() {
 		panic("init redis with error:" + err.Error())
 	}
 
-	err = handler.NewHandler().Operator.LoadStation_CodeMap()
+	err = handler.NewHandler().Operator.LoadStation_CodeMap() //车站id-name静态资源对应表，减少sql压力
 	if err != nil {
 		panic("init LoadStationMap with error:" + err.Error())
 	}
-
 	server := httpserver.CreateHttpServer()
 	listenAddress := fmt.Sprintf("0.0.0.0:%s", config.Conf.APP.Port)
 	if err = server.Run(listenAddress); err != nil {

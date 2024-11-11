@@ -266,6 +266,38 @@ func (db *OrmDB) UpdateEntityByFilter(table string, filter map[string]interface{
 	return nil
 }
 
+// UpdateEntityByFilter 根据条件使字段的值-1
+func (db *OrmDB) ReduceEntityRowsByFilter(table string, filter map[string]interface{}, params model.QueryParams, field string, count string) error {
+	defer utils.TimeCost()(fmt.Sprintf("[%s]UpdateEntityByFilter_timeCost", table))
+	fmt.Println(filter)
+	tx := db.Table(table).Where(filter)
+	if err := ProcessQueryParams(tx, params).Update(field, gorm.Expr("CASE WHEN "+field+" > 0 THEN "+field+" - "+count+" ELSE "+field+" END")).Error; err != nil {
+		log.Error("[%s]UpdateEntityByFilter Error.filter[%#v] params[%#v] updater[%#v] err[%#v] -n[%#v]", table, filter, params, field, err, count)
+		return err
+	}
+	if tx.RowsAffected == 0 {
+		log.Warn("[%s]UpdateEntityByFilter Warn.filter[%#v] params[%#v] updater[%#v] -n[%#v]", table, filter, params, field, count)
+		return fmt.Errorf("NoNums")
+	}
+	return nil
+}
+
+// AddEntityRowsByFilter 根据条件使字段的值+1
+func (db *OrmDB) AddEntityRowsByFilter(table string, filter map[string]interface{}, params model.QueryParams, field string, count string) error {
+	defer utils.TimeCost()(fmt.Sprintf("[%s]UpdateEntityByFilter_timeCost", table))
+	fmt.Println(filter)
+	tx := db.Table(table).Where(filter)
+	if err := ProcessQueryParams(tx, params).Update(field, gorm.Expr(field+"+"+count)).Error; err != nil {
+		log.Error("[%s]UpdateEntityByFilter Error.filter[%#v] params[%#v] updater[%#v] err[%#v] -n[%#v]", table, filter, params, field, err, count)
+		return err
+	}
+	if tx.RowsAffected == 0 {
+		log.Warn("[%s]UpdateEntityByFilter Warn.filter[%#v] params[%#v] updater[%#v] -n[%#v]", table, filter, params, field, count)
+		return fmt.Errorf("NoNums")
+	}
+	return nil
+}
+
 // DeleteEntityByFilter 逻辑删除 mode应该是空结构体指针，用来触发逻辑删除
 func (db *OrmDB) DeleteEntityByFilter(table string, filter map[string]interface{}, params model.QueryParams, mode interface{}) error {
 	if reflect.ValueOf(mode).Kind() != reflect.Ptr {

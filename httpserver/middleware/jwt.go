@@ -3,8 +3,10 @@ package middleware
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid/v5"
 	"github.com/golang-jwt/jwt/v4"
 	"strconv"
+	"ticket-service/api/handler"
 	config "ticket-service/conf"
 	"ticket-service/httpserver/app"
 	"ticket-service/httpserver/errcode"
@@ -44,6 +46,23 @@ func JWTAuth() gin.HandlerFunc {
 			//验证失败
 			app.SendAuthorizedErrorResponse(c, errcode.ErrorMsgUnauthorized)
 			//response.FailWithDetailed(gin.H{"reload": true}, err.Error(), c)
+			utils.ClearToken(c)
+			c.Abort()
+			return
+		}
+
+		//判断该token所携带用户信息是否正确
+
+		if claims.Issuer != config.Conf.JWT.Issuer {
+			app.SendAuthorizedErrorResponse(c, errcode.ErrorMsgUnknownToken)
+			utils.ClearToken(c)
+			c.Abort()
+			return
+		}
+
+		err = handler.NewHandler().Operator.QueryUserByUUID(claims.UUID)
+		if claims.UUID == uuid.Nil || err != nil {
+			app.SendAuthorizedErrorResponse(c, errcode.ErrorMsgUnknownToken)
 			utils.ClearToken(c)
 			c.Abort()
 			return

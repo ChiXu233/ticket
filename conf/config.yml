@@ -4,17 +4,32 @@ app:
   port: 8041
   mode: debug
 
+#华为-Mysql
+#db:
+#  name:         ticket
+#  host:         120.46.48.255
+#  user:         root
+#  password:     root
+#  port:         3306
+
+#腾讯云-Mysql
 db:
   name:         ticket
-  host:         120.46.48.255
+  host:         82.157.206.194
   user:         root
-  password:     root
+  password:     Sdl@admin
   port:         3306
 
+#华为-redis
+#redis:
+#  host:         120.46.48.255
+#  port:         6379
+#  password:     ""
+
 redis:
-  host:         120.46.48.255
+  host:         82.157.206.194
   port:         6379
-  Password:     ""
+  password:     "root"
 jwt:
   signing-key: root
   expires-time: 7d

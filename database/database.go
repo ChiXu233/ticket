@@ -34,6 +34,8 @@ type Database interface {
 
 	DeleteUnscopedEntityByFilter(table string, filter map[string]interface{}, params model.QueryParams, mode interface{}) error
 
+	ReduceEntityRowsByFilter(table string, filter map[string]interface{}, params model.QueryParams, field string, count string) error
+	AddEntityRowsByFilter(table string, filter map[string]interface{}, params model.QueryParams, field string, count string) error
 	ListEntityBySelectFilter(table string, filter map[string]interface{}, params model.QueryParams, entities interface{}, selector []string) error
 	PreloadEntityByFilter(table string, filter map[string]interface{}, params model.QueryParams, entities interface{}, preloads []string) error
 	Begin() (Database, error)
@@ -44,7 +46,7 @@ type Database interface {
 func InitDB() error {
 	//const DSN = "gorm:gorm@tcp(127.0.0.1:3306)/gorm?charset=utf8&parseTime=True&loc=Local"
 	DBConfig := config.Conf.DB
-	DSN := DBConfig.User + ":" + DBConfig.Password + "@tcp(" + DBConfig.Host + ":" + DBConfig.Port + ")/" + DBConfig.Name + "?charset=utf8mb4&parseTime=True&loc=UTC"
+	DSN := DBConfig.User + ":" + DBConfig.Password + "@tcp(" + DBConfig.Host + ":" + DBConfig.Port + ")/" + DBConfig.Name + "?charset=utf8mb4&parseTime=true&loc=UTC"
 
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       DSN,   // DSN data source name
@@ -110,6 +112,10 @@ func initTable(db *gorm.DB) {
 	err = db.AutoMigrate(&model.TrainSeat{})
 	if err != nil {
 		log.Error("init table[%s] error.[%s]", model.TableNameTrainSeat, err.Error())
+	}
+	err = db.AutoMigrate(&model.UserOrder{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameUserOrder, err.Error())
 	}
 
 }

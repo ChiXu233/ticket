@@ -54,10 +54,10 @@ func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest
 	}
 	for _, v := range schedule.Stops {
 		if v.ID == req.StartStationID {
-			opt.StartStationID = v.ID
+			opt.StartStationID = v.StationID
 			startInfo = v
 		} else if v.ID == req.EndStationID {
-			opt.EndStationID = v.ID
+			opt.EndStationID = v.StationID
 			endInfo = v
 		}
 	}
@@ -93,6 +93,8 @@ func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest
 	selector[model.FieldScheduleID] = req.ScheduleID
 	selector[model.FieldSeatType] = req.SeatType
 
+	var seat_num_data model.TrainSeat
+
 	//加锁
 	mutex.Lock()
 	err = tx.Database.ReduceEntityRowsByFilter(model.TableNameTrainSeat, selector, model.OneQuery, "seat_now_nums", "1")
@@ -105,7 +107,16 @@ func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest
 		mutex.Unlock()
 		return uuid.Nil, err
 	}
+	err = tx.Database.ListEntityBySelectFilter(model.TableNameTrainSeat, selector, model.OneQuery, &seat_num_data, []string{"id", "seat_nums", "seat_now_nums"})
+	if err != nil {
+		return uuid.Nil, fmt.Errorf(errcode.ErrorMsgListData)
+	}
 	mutex.Unlock()
+	if seat_num_data.ID <= 0 {
+		return uuid.Nil, fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "座位类型")
+	}
+	//座位编号用总票数-当前票数替代。
+	opt.SeatNum = seat_num_data.SeatNums - seat_num_data.SeatNowNums
 	opt.CreatedAt = time.Now()
 	//新创建的订单写入redis中
 	jsonData, err := json.Marshal(&opt)

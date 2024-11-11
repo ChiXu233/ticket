@@ -20,6 +20,7 @@ func CreateHttpServer() *gin.Engine {
 		gin.Logger(),
 		// 日志组件增强，用来打印gin的入参
 		middleware.RequestInfo(),
+		middleware.Cors(),
 		gin.Recovery(),
 	}
 	// 路由注册，中间件引入

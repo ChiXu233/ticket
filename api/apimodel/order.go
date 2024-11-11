@@ -3,6 +3,7 @@ package apimodel
 import (
 	"fmt"
 	"github.com/gofrs/uuid/v5"
+	"strconv"
 	"ticket-service/database/model"
 	"ticket-service/global"
 	"ticket-service/httpserver/errcode"
@@ -15,14 +16,15 @@ type UserOrderInfo struct {
 	ID               int           `json:"id"`
 	UserID           int           `json:"user_id"`
 	UserPhone        string        `json:"user_phone"`
-	ScheduleID       int           `json:"schedule_id"`        //运行计划id
-	StartStationID   int           `json:"start_station_id"`   //起点站id
-	StartStationInfo TrainStopInfo `json:"start_station_info"` //起点站
+	ScheduleID       int           `json:"schedule_id"`      //运行计划id
+	StartStationID   int           `json:"start_station_id"` //起点站id
+	StartInfo        TrainStopInfo `json:"start_info"`       //起点站
 	StartStationName string        `json:"start_station_name"`
-	EndStationID     int           `json:"end_station_id"`   //终点站id
-	EndStationInfo   TrainStopInfo `json:"end_station_info"` //终点站
+	EndStationID     int           `json:"end_station_id"` //终点站id
+	EndInfo          TrainStopInfo `json:"end_info"`       //终点站
 	EndStationName   string        `json:"end_station_name"`
 	SeatType         string        `json:"seat_type"`      //座位类型
+	SeatNum          string        `json:"seat_num"`       //座位编号
 	Price            float64       `json:"price"`          //订单金额
 	IsDepart         bool          `json:"is_depart"`      //出行状态
 	IsPay            bool          `json:"is_pay"`         //支付状态
@@ -87,8 +89,10 @@ func (t *UserOrderInfo) Load(orderData model.UserOrder) {
 	t.ArrivalTime = orderData.ArrivalTime.String()
 	t.CreatedAt = orderData.CreatedAt.String()
 	t.UpdatedAt = orderData.UpdatedAt.String()
-	t.StartStationInfo.Load(orderData.StartStation)
-	t.EndStationInfo.Load(orderData.EndStation)
+	t.SeatNum = strconv.Itoa(orderData.SeatNum)
+	t.SeatType = orderData.SeatType
+	t.StartInfo.Load(orderData.StartStation)
+	t.EndInfo.Load(orderData.EndStation)
 }
 
 // DataLoading

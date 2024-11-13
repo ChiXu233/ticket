@@ -449,6 +449,12 @@ func ParseTime(layout string, timeStr string) time.Time {
 	return parse
 }
 
+// 日期转字符串
+func TimeFormat(time time.Time) string {
+	return time.Format("2006-01-02 15:04:05")
+
+}
+
 // SliceIntIsRepeat int类型的slice是否有重复
 func SliceIntIsRepeat(container []int) bool {
 	if len(container) <= 1 {

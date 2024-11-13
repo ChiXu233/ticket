@@ -7,6 +7,7 @@ import (
 	"ticket-service/database/model"
 	"ticket-service/global"
 	"ticket-service/httpserver/errcode"
+	"ticket-service/pkg/utils"
 )
 
 // base struct
@@ -85,10 +86,10 @@ func (t *UserOrderInfo) Load(orderData model.UserOrder) {
 	t.IsDepart = orderData.IsDepart
 	t.IsPay = orderData.IsPay
 	t.IsCancel = orderData.IsCancel
-	t.DepartureTime = orderData.DepartureTime.String()
-	t.ArrivalTime = orderData.ArrivalTime.String()
-	t.CreatedAt = orderData.CreatedAt.String()
-	t.UpdatedAt = orderData.UpdatedAt.String()
+	t.DepartureTime = utils.TimeFormat(orderData.DepartureTime)
+	t.ArrivalTime = utils.TimeFormat(orderData.ArrivalTime)
+	t.CreatedAt = utils.TimeFormat(orderData.CreatedAt)
+	t.UpdatedAt = utils.TimeFormat(orderData.UpdatedAt)
 	t.SeatNum = strconv.Itoa(orderData.SeatNum)
 	t.SeatType = orderData.SeatType
 	t.StartInfo.Load(orderData.StartStation)

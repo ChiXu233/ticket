@@ -5,6 +5,7 @@ import (
 	"ticket-service/database/model"
 	"ticket-service/global"
 	"ticket-service/httpserver/errcode"
+	"ticket-service/pkg/utils"
 )
 
 // baseMode
@@ -145,16 +146,16 @@ type TrainSeatInfoPageResponse struct {
 
 func (t *TrainInfo) Load(TrainInfoData model.Train) {
 	t.ID = TrainInfoData.ID
-	t.CreatedAt = TrainInfoData.CreatedAt.String()
-	t.UpdatedAt = TrainInfoData.UpdatedAt.String()
+	t.CreatedAt = utils.TimeFormat(TrainInfoData.CreatedAt)
+	t.UpdatedAt = utils.TimeFormat(TrainInfoData.UpdatedAt)
 	t.Name = TrainInfoData.Name
 	t.TrainType = TrainInfoData.TrainType
 }
 
 func (t *StationInfo) Load(TrainInfoData model.Station) {
 	t.ID = TrainInfoData.ID
-	t.CreatedAt = TrainInfoData.CreatedAt.String()
-	t.UpdatedAt = TrainInfoData.UpdatedAt.String()
+	t.CreatedAt = utils.TimeFormat(TrainInfoData.CreatedAt)
+	t.UpdatedAt = utils.TimeFormat(TrainInfoData.UpdatedAt)
 	t.Name = TrainInfoData.Name
 	t.Province = TrainInfoData.Province
 	t.City = TrainInfoData.City
@@ -164,10 +165,10 @@ func (t *StationInfo) Load(TrainInfoData model.Station) {
 func (t *TrainScheduleInfo) Load(TrainInfoData model.TrainSchedule) {
 	t.ID = TrainInfoData.ID
 	t.TrainID = TrainInfoData.TrainID
-	t.CreatedAt = TrainInfoData.CreatedAt.String()
-	t.UpdatedAt = TrainInfoData.UpdatedAt.String()
+	t.CreatedAt = utils.TimeFormat(TrainInfoData.CreatedAt)
+	t.UpdatedAt = utils.TimeFormat(TrainInfoData.UpdatedAt)
 	t.TrainName = TrainInfoData.TrainName
-	t.DepartureDate = TrainInfoData.DepartureDate.String()
+	t.DepartureDate = utils.TimeFormat(TrainInfoData.DepartureDate)
 	for _, v := range TrainInfoData.Stops {
 		t.Stops = append(t.Stops, TrainStopInfo{
 			ID:            v.ID,
@@ -175,9 +176,9 @@ func (t *TrainScheduleInfo) Load(TrainInfoData model.TrainSchedule) {
 			StationID:     v.StationID,
 			StationName:   global.StationCodeMap[v.ID],
 			StopOrder:     v.StopOrder,
-			DepartureTime: v.DepartureTime.String(),
-			CreatedAt:     v.CreatedAt.String(),
-			UpdatedAt:     v.UpdatedAt.String(),
+			DepartureTime: utils.TimeFormat(v.DepartureTime),
+			CreatedAt:     utils.TimeFormat(v.CreatedAt),
+			UpdatedAt:     utils.TimeFormat(v.UpdatedAt),
 		})
 	}
 	for _, v := range TrainInfoData.Seats {
@@ -188,21 +189,21 @@ func (t *TrainScheduleInfo) Load(TrainInfoData model.TrainSchedule) {
 			SeatNowNums: v.SeatNowNums,
 			SeatType:    v.SeatType,
 			Price:       v.Price,
-			CreatedAt:   v.CreatedAt.String(),
-			UpdatedAt:   v.UpdatedAt.String(),
+			CreatedAt:   utils.TimeFormat(v.CreatedAt),
+			UpdatedAt:   utils.TimeFormat(v.UpdatedAt),
 		})
 	}
 }
 
 func (t *TrainStopInfo) Load(TrainStopData model.TrainStop) {
 	t.ID = TrainStopData.ID
-	t.CreatedAt = TrainStopData.CreatedAt.String()
-	t.UpdatedAt = TrainStopData.UpdatedAt.String()
+	t.CreatedAt = utils.TimeFormat(TrainStopData.CreatedAt)
+	t.UpdatedAt = utils.TimeFormat(TrainStopData.UpdatedAt)
 	t.ScheduleID = TrainStopData.ScheduleID
 	t.StationName = global.StationCodeMap[TrainStopData.StationID]
 	t.StationID = TrainStopData.StationID
 	t.StopOrder = TrainStopData.StopOrder
-	t.DepartureTime = TrainStopData.DepartureTime.String()
+	t.DepartureTime = utils.TimeFormat(TrainStopData.DepartureTime)
 }
 
 //ScheduleID  int     `json:"schedule_id"`
@@ -213,8 +214,8 @@ func (t *TrainStopInfo) Load(TrainStopData model.TrainStop) {
 
 func (t *TrainSeatInfo) Load(TrainSeatData model.TrainSeat) {
 	t.ID = TrainSeatData.ID
-	t.CreatedAt = TrainSeatData.CreatedAt.String()
-	t.UpdatedAt = TrainSeatData.UpdatedAt.String()
+	t.CreatedAt = utils.TimeFormat(TrainSeatData.CreatedAt)
+	t.UpdatedAt = utils.TimeFormat(TrainSeatData.UpdatedAt)
 	t.ScheduleID = TrainSeatData.ScheduleID
 	t.SeatNums = TrainSeatData.SeatNums
 	t.SeatNowNums = TrainSeatData.SeatNowNums

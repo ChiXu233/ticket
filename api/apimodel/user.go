@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid/v5"
 	"ticket-service/database/model"
 	"ticket-service/httpserver/errcode"
+	"ticket-service/pkg/utils"
 )
 
 //base struct
@@ -77,8 +78,8 @@ func (u *UserInfo) Load(userData model.User) {
 	u.NickName = userData.NickName
 	u.Phone = userData.Phone
 	u.Email = userData.Email
-	u.CreatedAt = userData.CreatedAt.String()
-	u.UpdatedAt = userData.UpdatedAt.String()
+	u.CreatedAt = utils.TimeFormat(userData.CreatedAt)
+	u.UpdatedAt = utils.TimeFormat(userData.UpdatedAt)
 }
 
 func (t *LoginResponse) Load(userData model.User) {
@@ -88,8 +89,8 @@ func (t *LoginResponse) Load(userData model.User) {
 	t.NickName = userData.NickName
 	t.Phone = userData.Phone
 	t.Email = userData.Email
-	t.CreatedAt = userData.CreatedAt.String()
-	t.UpdatedAt = userData.UpdatedAt.String()
+	t.CreatedAt = utils.TimeFormat(userData.CreatedAt)
+	t.UpdatedAt = utils.TimeFormat(userData.UpdatedAt)
 }
 
 //DataLoading

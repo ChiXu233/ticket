@@ -34,9 +34,9 @@ type UserInfoRequest struct {
 	UUID      string `json:"uuid" uri:"uuid" form:"uuid"` // 用户UUID
 	Username  string `json:"username" form:"username"`    // 用户登录名
 	Password  string `json:"password"`                    // 用户登录密码
-	NickName  string `json:"nickName"`                    // 用户昵称
-	Phone     string `json:"phone" `                      // 用户手机号
-	Email     string `json:"email"`                       // 用户邮箱
+	NickName  string `json:"nickName" form:"nickname"`    // 用户昵称
+	Phone     string `json:"phone" form:"phone"`          // 用户手机号
+	Email     string `json:"email" form:"email"`          // 用户邮箱
 	CreatedAt string `json:"created_time"`
 	UpdatedAt string `json:"updated_time"`
 	PaginationRequest
@@ -172,7 +172,10 @@ func (req UserChangePWRequest) Valid(opt string) error {
 		if req.NewPass == "" {
 			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "newPass")
 		}
-
+	} else if opt == ValidOptResetPwd {
+		if req.UUID == uuid.Nil {
+			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "uuid")
+		}
 	}
 	return nil
 }

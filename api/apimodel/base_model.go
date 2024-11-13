@@ -13,12 +13,13 @@ const (
 	OrderDesc       = "desc"
 	OrderAsc        = "asc"
 
-	ValidOptCreate = "save"
-	ValidOptUpdate = "update"
-	ValidOptList   = "query"
-	ValidOptDel    = "del"
-	ValidOptLogin  = "login"
-	ValidOptCancel = "cancel"
+	ValidOptCreate   = "save"
+	ValidOptUpdate   = "update"
+	ValidOptList     = "query"
+	ValidOptDel      = "del"
+	ValidOptLogin    = "login"
+	ValidOptCancel   = "cancel"
+	ValidOptResetPwd = "reset"
 )
 
 var (

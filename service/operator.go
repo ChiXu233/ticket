@@ -22,6 +22,7 @@ type Operator interface {
 	QueryUserList(req *apimodel.UserInfoRequest) (*apimodel.UserPageResponse, error)
 	ChangePassword(req *apimodel.UserChangePWRequest) error
 	QueryUserByUUID(uuid uuid.UUID) error
+	ResetPassword(req *apimodel.UserChangePWRequest) error
 
 	//车辆
 	CreateTrain(req *apimodel.TrainInfoRequest) error

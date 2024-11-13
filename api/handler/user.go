@@ -133,3 +133,23 @@ func (handler *RestHandler) ChangePassword(c *gin.Context) {
 	}
 	app.Success(c, nil)
 }
+
+func (handler *RestHandler) ResetPassword(c *gin.Context) {
+	var req apimodel.UserChangePWRequest
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
+		return
+	}
+	err = req.Valid(apimodel.ValidOptResetPwd)
+	if err != nil {
+		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	err = handler.Operator.ResetPassword(&req)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgUpdateData, err)
+		return
+	}
+	app.Success(c, nil)
+}

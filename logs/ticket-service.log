@@ -370,3 +370,6 @@
 2024-11-08 11:40:36 [EROR] [C:/Users/赤/Desktop/大四/ticket-service/service/order.go:341] 定时任务.恢复库存失败 err:[NoNums]
 2024-11-08 11:40:36 [EROR] [C:/Users/赤/Desktop/大四/ticket-service/httpserver/app/response.go:40] Request [POST] [/api/cancel_user_order/e355eaca-7875-4b2b-a1b1-b31f3bb01772] Error.HttpCode[200] BusinessCode[9999] Message[取消失败] ErrDetail[NoNums]
 2024-11-08 11:47:58 [EROR] [C:/Users/赤/Desktop/大四/ticket-service/httpserver/app/response.go:40] Request [POST] [/api/cancel_user_order/be89a2a4-b91c-4970-8fea-381b23d5bfc7] Error.HttpCode[200] BusinessCode[9999] Message[取消失败] ErrDetail[取消订单 输入无效:be89a2a4-b91c-4970-8fea-381b23d5bfc7]
+2024-11-13 15:25:30 [EROR] [C:/Users/赤/Desktop/大四/ticket-service/httpserver/app/response.go:40] Request [POST] [/api/login] Error.HttpCode[200] BusinessCode[5014] Message[密码错误] ErrDetail[密码错误]
+2024-11-13 15:26:41 [EROR] [C:/Users/赤/Desktop/大四/ticket-service/httpserver/app/response.go:40] Request [POST] [/api/reset_password] Error.HttpCode[200] BusinessCode[5003] Message[参数验证错误username] ErrDetail[<nil>]
+2024-11-13 15:31:42 [EROR] [C:/Users/赤/Desktop/大四/ticket-service/httpserver/app/response.go:40] Request [POST] [/api/login] Error.HttpCode[200] BusinessCode[5014] Message[密码错误] ErrDetail[密码错误]

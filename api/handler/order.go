@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid/v5"
+
 	"ticket-service/api/apimodel"
 	"ticket-service/httpserver/app"
 	"ticket-service/httpserver/errcode"
@@ -76,9 +77,7 @@ func (handler *RestHandler) QueryUserOrderList(c *gin.Context) {
 
 func (handler *RestHandler) CancelUserOrder(c *gin.Context) {
 	var req apimodel.UserOrderRequest
-	var err error
-	uuidStr := c.Param("uuid")
-	req.UUID, err = uuid.FromString(uuidStr)
+	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return
@@ -98,9 +97,7 @@ func (handler *RestHandler) CancelUserOrder(c *gin.Context) {
 
 func (handler *RestHandler) PayUserOrder(c *gin.Context) {
 	var req apimodel.UserOrderRequest
-	var err error
-	uuidStr := c.Param("uuid")
-	req.UUID, err = uuid.FromString(uuidStr)
+	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		app.SendParameterErrorResponse(c, errcode.ErrorMsgLoadParam)
 		return

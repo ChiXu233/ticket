@@ -92,8 +92,8 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 		//订单
 		v1.POST("/create_user_order", restHandler.CreateUserOrder)
 		v1.GET("/query_user_order", restHandler.QueryUserOrderList)
-		v1.POST("/cancel_user_order/:uuid", restHandler.CancelUserOrder)
-		v1.POST("/pay_user_order/:uuid", restHandler.PayUserOrder)
+		v1.POST("/cancel_user_order", restHandler.CancelUserOrder)
+		v1.POST("/pay_user_order", restHandler.PayUserOrder)
 		v1.DELETE("/delete_user_order/:uuid", restHandler.DeleteUserOrder)
 	}
 

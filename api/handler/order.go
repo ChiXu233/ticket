@@ -9,8 +9,6 @@ import (
 	"ticket-service/httpserver/errcode"
 )
 
-//@TODO 查找所有待支付订单、查找历史订单、删除订单、支付订单
-
 func (handler *RestHandler) CreateUserOrder(c *gin.Context) {
 	var req apimodel.UserOrderRequest
 	err := c.ShouldBindJSON(&req)
@@ -109,7 +107,7 @@ func (handler *RestHandler) PayUserOrder(c *gin.Context) {
 	}
 	err = handler.Operator.PayUserOrder(&req)
 	if err != nil {
-		app.SendServerErrorResponse(c, errcode.ErrorMsgCancel, err)
+		app.SendServerErrorResponse(c, errcode.ErrorMsgPay, err)
 		return
 	}
 	app.Success(c, nil)

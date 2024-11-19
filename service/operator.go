@@ -61,6 +61,10 @@ type Operator interface {
 	DeleteUserOrder(req *apimodel.UserOrderRequest) error
 	PayUserOrder(req *apimodel.UserOrderRequest) error
 
+	//日志
+	QueryLogList() (*apimodel.LogListResponse, error)
+	QueryLogData(req *apimodel.LogInfoRequest) (*apimodel.LogInfoResponse, error)
+
 	//StationMap
 	LoadStation_CodeMap() error
 }

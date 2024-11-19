@@ -51,6 +51,7 @@ const (
 	ErrorMsgUpdateData     = "修改数据失败"
 	ErrorMsgDeleteData     = "删除数据失败"
 	ErrorMsgCancel         = "取消失败"
+	ErrorMsgPay            = "支付失败"
 	ErrorMsgCreateOrUpdate = "修改/创建数据失败"
 	//ErrorMsgBatchCreate    = "批量创建数据失败"
 

@@ -206,12 +206,6 @@ func (t *TrainStopInfo) Load(TrainStopData model.TrainStop) {
 	t.DepartureTime = utils.TimeFormat(TrainStopData.DepartureTime)
 }
 
-//ScheduleID  int     `json:"schedule_id"`
-//SeatNums    int     `json:"seat_nums"`
-//SeatNowNums int     `json:"seat_now_nums"`
-//SeatType    string  `json:"seat_type"`
-//Price       float64 `json:"price"`
-
 func (t *TrainSeatInfo) Load(TrainSeatData model.TrainSeat) {
 	t.ID = TrainSeatData.ID
 	t.CreatedAt = utils.TimeFormat(TrainSeatData.CreatedAt)

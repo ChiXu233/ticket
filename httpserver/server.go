@@ -88,13 +88,16 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 		v1.GET("/query_train_seat", restHandler.QueryTrainSeatInfoList)
 		v1.POST("/update_train_seat/", restHandler.UpdateTrainSeatInfo)
 
-		//@TODO 待测试
 		//订单
 		v1.POST("/create_user_order", restHandler.CreateUserOrder)
 		v1.GET("/query_user_order", restHandler.QueryUserOrderList)
 		v1.POST("/cancel_user_order", restHandler.CancelUserOrder)
 		v1.POST("/pay_user_order", restHandler.PayUserOrder)
 		v1.DELETE("/delete_user_order/:uuid", restHandler.DeleteUserOrder)
+
+		//日志
+		v1.GET("/log_list", restHandler.QueryLogList)
+		v1.GET("/log_info", restHandler.QueryLogData)
 	}
 
 	if config.Conf.APP.Mode == gin.DebugMode {

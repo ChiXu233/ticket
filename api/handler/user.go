@@ -93,6 +93,7 @@ func (handler *RestHandler) DeleteUser(c *gin.Context) {
 	}
 	app.Success(c, nil)
 }
+
 func (handler *RestHandler) QueryUserList(c *gin.Context) {
 	req := apimodel.UserInfoRequest{
 		PaginationRequest: apimodel.DefaultPaginationRequest,
@@ -114,6 +115,7 @@ func (handler *RestHandler) QueryUserList(c *gin.Context) {
 	}
 	app.Success(c, resp)
 }
+
 func (handler *RestHandler) ChangePassword(c *gin.Context) {
 	var req apimodel.UserChangePWRequest
 	err := c.ShouldBindJSON(&req)

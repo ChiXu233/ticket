@@ -9,6 +9,7 @@ import (
 	"ticket-service/api/apimodel"
 	"ticket-service/database/model"
 	"ticket-service/httpserver/errcode"
+	"ticket-service/pkg/utils"
 	"ticket-service/pkg/utils/redis"
 	"time"
 )
@@ -218,8 +219,20 @@ func (operator *ResourceOperator) QueryUserOrderList(req *apimodel.UserOrderRequ
 		if req.ID == 0 && req.UserID == 0 && req.ScheduleID == 0 {
 			targetOrder = orders
 		}
-		resp.Load(int64(len(targetOrder)), targetOrder, req.Tag)
-		return &resp, nil
+
+		//分页处理
+		if req.PageSize != 0 && req.PageNo != 0 {
+			skip, end, err := utils.GetPage(len(targetOrder), req.PageNo, req.PageSize)
+			if err != nil {
+				return nil, fmt.Errorf("获取页面失败err:[%s]", err)
+			}
+			resp.Load(int64(len(targetOrder)), targetOrder[skip:end], req.Tag)
+			return &resp, nil
+		} else {
+			resp.Load(int64(len(targetOrder)), targetOrder, req.Tag)
+			return &resp, nil
+		}
+
 	} else if req.Tag == "WaitingDepartList" || req.Tag == "BeenDepartList" || req.Tag == "BeenCancelList" {
 		var count int64
 		var userOrders []model.UserOrder
@@ -307,8 +320,20 @@ func (operator *ResourceOperator) QueryUserOrderList(req *apimodel.UserOrderRequ
 			}
 		}
 		userOrders = append(userOrders, targetOrder...)
-		resp.Load(count+int64(len(targetOrder)), userOrders, req.Tag)
-		return &resp, nil
+
+		//分页处理
+		if req.PageSize != 0 && req.PageNo != 0 {
+			skip, end, err := utils.GetPage(len(userOrders), req.PageNo, req.PageSize)
+			if err != nil {
+				return nil, fmt.Errorf("获取页面失败err:[%s]", err)
+			}
+			resp.Load(int64(len(userOrders)), userOrders[skip:end], req.Tag)
+			return &resp, nil
+		} else {
+			resp.Load(int64(len(userOrders)), userOrders, req.Tag)
+			return &resp, nil
+		}
+
 	} else {
 		log.Error("订单 输入tag无效:[%#v]", req.Tag)
 		return nil, fmt.Errorf("订单数据 tag输入无效:%s", req.Tag)

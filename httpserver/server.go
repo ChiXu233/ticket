@@ -96,7 +96,7 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 		v1.DELETE("/delete_user_order/:uuid", restHandler.DeleteUserOrder)
 
 		//日志
-		v1.GET("/log_list", restHandler.QueryLogList)
+		//v1.GET("/log_list", restHandler.QueryLogList)
 		v1.GET("/log_info", restHandler.QueryLogData)
 	}
 

@@ -13,9 +13,7 @@ type LogInfo struct {
 }
 
 type LogInfoRequest struct {
-	LogName   string `json:"name" form:"name"`
-	StartTime string `json:"start_time" form:"start_time"`
-	EndTime   string `json:"end_time" form:"end_time"`
+	LogTime string `json:"logTime" form:"log_time"`
 	PaginationRequest
 }
 

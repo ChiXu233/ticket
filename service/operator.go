@@ -62,7 +62,7 @@ type Operator interface {
 	PayUserOrder(req *apimodel.UserOrderRequest) error
 
 	//日志
-	QueryLogList() (*apimodel.LogListResponse, error)
+	//QueryLogList() (*apimodel.LogListResponse, error)
 	QueryLogData(req *apimodel.LogInfoRequest) (*apimodel.LogInfoResponse, error)
 
 	//StationMap

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -698,4 +699,19 @@ func ParseDuration(d string) (time.Duration, error) {
 
 	dv, err := strconv.ParseInt(d, 10, 64)
 	return time.Duration(dv), err
+}
+
+func GetPage(totalItems int, pageNo int, pageSize int) (skip int, end int, err error) {
+	//分页处理
+	totalPages := int(math.Ceil(float64(totalItems) / float64(pageNo)))
+	if pageNo < 1 || pageNo > totalPages {
+		return 0, 0, fmt.Errorf("传入页面参数")
+	}
+	skip = (pageNo - 1) * pageSize
+	end = skip + pageSize
+	if end > totalItems {
+		end = totalItems
+	}
+	return skip, end, nil
+
 }

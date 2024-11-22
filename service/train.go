@@ -80,8 +80,8 @@ func (operator *ResourceOperator) QueryTrainList(req *apimodel.TrainInfoRequest)
 	}
 	if count > 0 {
 		order := model.Order{
-			Field:     model.FieldID,
-			Direction: apimodel.OrderAsc,
+			Field:     model.FieldUpdatedTime,
+			Direction: apimodel.OrderDesc,
 		}
 		queryParams.Orders = append(queryParams.Orders, order)
 		if req.PageSize > 0 {
@@ -218,8 +218,8 @@ func (operator *ResourceOperator) QueryStationList(req *apimodel.TrainStationReq
 	}
 	if count > 0 {
 		order := model.Order{
-			Field:     model.FieldID,
-			Direction: apimodel.OrderAsc,
+			Field:     model.FieldUpdatedTime,
+			Direction: apimodel.OrderDesc,
 		}
 		queryParams.Orders = append(queryParams.Orders, order)
 		if req.PageSize > 0 {
@@ -444,8 +444,8 @@ func (operator *ResourceOperator) QueryTrainScheduleList(req *apimodel.TrainSche
 	}
 	if count > 0 {
 		order := model.Order{
-			Field:     model.FieldID,
-			Direction: apimodel.OrderAsc,
+			Field:     model.FieldUpdatedTime,
+			Direction: apimodel.OrderDesc,
 		}
 		queryParams.Orders = append(queryParams.Orders, order)
 		if req.PageSize > 0 {
@@ -672,8 +672,8 @@ func (operator *ResourceOperator) QueryTrainStopInfoList(req *apimodel.TrainStop
 	}
 	if count > 0 {
 		order := model.Order{
-			Field:     model.FieldID,
-			Direction: apimodel.OrderAsc,
+			Field:     model.FieldUpdatedTime,
+			Direction: apimodel.OrderDesc,
 		}
 		queryParams.Orders = append(queryParams.Orders, order)
 		if req.PageSize > 0 {
@@ -776,8 +776,8 @@ func (operator *ResourceOperator) QueryTrainSeatInfoList(req *apimodel.TrainSeat
 	}
 	if count > 0 {
 		order := model.Order{
-			Field:     model.FieldID,
-			Direction: apimodel.OrderAsc,
+			Field:     model.FieldUpdatedTime,
+			Direction: apimodel.OrderDesc,
 		}
 		queryParams.Orders = append(queryParams.Orders, order)
 		if req.PageSize > 0 {

@@ -27,7 +27,6 @@ func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest
 		_ = tx.TransactionRollback()
 	}()
 	//校验用户ID 以及手机号
-
 	selector := make(map[string]interface{})
 	selector[model.FieldID] = req.UserID
 	err = tx.Database.ListEntityByFilter(model.TableNameUser, selector, model.OneQuery, &userDB)
@@ -38,7 +37,6 @@ func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest
 
 	//校验行驶计划
 	var schedule model.TrainSchedule
-
 	selector = make(map[string]interface{})
 	selector[model.FieldID] = req.ScheduleID
 	err = tx.Database.PreloadEntityByFilter(model.TableNameTrainSchedule, selector, model.OneQuery, &schedule, []string{"Stops", "Seats"})
@@ -54,10 +52,10 @@ func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest
 		return uuid.Nil, err
 	}
 	for _, v := range schedule.Stops {
-		if v.ID == req.StartStationID {
+		if v.StationID == req.StartStationID {
 			opt.StartStationID = v.StationID
 			startInfo = v
-		} else if v.ID == req.EndStationID {
+		} else if v.StationID == req.EndStationID {
 			opt.EndStationID = v.StationID
 			endInfo = v
 		}
@@ -242,7 +240,7 @@ func (operator *ResourceOperator) QueryUserOrderList(req *apimodel.UserOrderRequ
 		}
 		if count > 0 {
 			order := model.Order{
-				Field:     model.FieldID,
+				Field:     model.FieldUpdatedTime,
 				Direction: apimodel.OrderDesc,
 			}
 			queryParams.Orders = append(queryParams.Orders, order)
@@ -304,7 +302,7 @@ func (operator *ResourceOperator) QueryUserOrderList(req *apimodel.UserOrderRequ
 		}
 		if count > 0 {
 			order := model.Order{
-				Field:     model.FieldID,
+				Field:     model.FieldUpdatedTime,
 				Direction: apimodel.OrderDesc,
 			}
 			queryParams.Orders = append(queryParams.Orders, order)

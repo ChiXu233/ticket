@@ -165,8 +165,8 @@ func (operator *ResourceOperator) QueryUserList(req *apimodel.UserInfoRequest) (
 	}
 	if count > 0 {
 		order := model.Order{
-			Field:     model.FieldID,
-			Direction: apimodel.OrderAsc,
+			Field:     model.FieldUpdatedTime,
+			Direction: apimodel.OrderDesc,
 		}
 		queryParams.Orders = append(queryParams.Orders, order)
 		if req.PageSize > 0 {

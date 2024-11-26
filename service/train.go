@@ -72,38 +72,44 @@ func (operator *ResourceOperator) QueryTrainList(req *apimodel.TrainInfoRequest)
 		selector[model.FieldTrainType] = req.TrainType
 	}
 
+	order := model.Order{
+		Field:     model.FieldUpdatedTime,
+		Direction: apimodel.OrderDesc,
+	}
+	queryParams.Orders = append(queryParams.Orders, order)
+	if req.PageSize > 0 {
+		queryParams.Limit = &req.PageSize
+		offset := (req.PageNo - 1) * req.PageSize
+		queryParams.Offset = &offset
+	}
+
+	//车号模糊查询
+	if req.Name != "" {
+		var keyword []model.Keyword
+		keyword = append(keyword, model.Keyword{Field: model.FieldName, Value: req.Name, Type: 0})
+		subquery := &model.SubQuery{
+			Keywords: keyword,
+		}
+		queryParams.SubQueries = append(queryParams.SubQueries, subquery)
+	}
+	if req.StartTime != "" && req.EndTime != "" {
+		rangeQuery := &model.RangeQuery{
+			Field: model.FieldCreatedTime,
+			Start: req.StartTime,
+			End:   req.EndTime,
+		}
+		queryParams.RangeQueries = append(queryParams.RangeQueries, rangeQuery)
+	}
 	var count int64
 	var trains []model.Train
-	err := operator.Database.CountEntityByFilter(model.TableNameTrain, selector, model.OneQuery, &count)
+	err := operator.Database.CountEntityByFilter(model.TableNameTrain, selector, queryParams, &count)
 	if err != nil {
 		return nil, err
 	}
-	if count > 0 {
-		order := model.Order{
-			Field:     model.FieldUpdatedTime,
-			Direction: apimodel.OrderDesc,
-		}
-		queryParams.Orders = append(queryParams.Orders, order)
-		if req.PageSize > 0 {
-			queryParams.Limit = &req.PageSize
-			offset := (req.PageNo - 1) * req.PageSize
-			queryParams.Offset = &offset
-		}
-
-		//车号模糊查询
-		if req.Name != "" {
-			var keyword []model.Keyword
-			keyword = append(keyword, model.Keyword{Field: model.FieldName, Value: req.Name, Type: 0})
-			subquery := &model.SubQuery{
-				Keywords: keyword,
-			}
-			queryParams.SubQueries = append(queryParams.SubQueries, subquery)
-		}
-		err = operator.Database.ListEntityByFilter(model.TableNameTrain, selector, queryParams, &trains)
-		if err != nil {
-			log.Error("列车数据查询失败. err:[%v]", err)
-			return nil, err
-		}
+	err = operator.Database.ListEntityByFilter(model.TableNameTrain, selector, queryParams, &trains)
+	if err != nil {
+		log.Error("列车数据查询失败. err:[%v]", err)
+		return nil, err
 	}
 	resp.Load(count, trains)
 	return &resp, nil
@@ -210,38 +216,46 @@ func (operator *ResourceOperator) QueryStationList(req *apimodel.TrainStationReq
 	if req.Province != "" {
 		selector[model.FieldStationProvince] = req.Province
 	}
+
+	order := model.Order{
+		Field:     model.FieldUpdatedTime,
+		Direction: apimodel.OrderDesc,
+	}
+	queryParams.Orders = append(queryParams.Orders, order)
+	if req.PageSize > 0 {
+		queryParams.Limit = &req.PageSize
+		offset := (req.PageNo - 1) * req.PageSize
+		queryParams.Offset = &offset
+	}
+	//车站名模糊查询
+	if req.Name != "" {
+		var keyword []model.Keyword
+		keyword = append(keyword, model.Keyword{Field: model.FieldName, Value: req.Name, Type: 0})
+		subquery := &model.SubQuery{
+			Keywords: keyword,
+		}
+		queryParams.SubQueries = append(queryParams.SubQueries, subquery)
+	}
+	if req.StartTime != "" && req.EndTime != "" {
+		rangeQuery := &model.RangeQuery{
+			Field: model.FieldCreatedTime,
+			Start: req.StartTime,
+			End:   req.EndTime,
+		}
+		queryParams.RangeQueries = append(queryParams.RangeQueries, rangeQuery)
+	}
 	var count int64
 	var stations []model.Station
-	err := operator.Database.CountEntityByFilter(model.TableNameStation, selector, model.OneQuery, &count)
+	err := operator.Database.CountEntityByFilter(model.TableNameStation, selector, queryParams, &count)
 	if err != nil {
 		return nil, err
 	}
-	if count > 0 {
-		order := model.Order{
-			Field:     model.FieldUpdatedTime,
-			Direction: apimodel.OrderDesc,
-		}
-		queryParams.Orders = append(queryParams.Orders, order)
-		if req.PageSize > 0 {
-			queryParams.Limit = &req.PageSize
-			offset := (req.PageNo - 1) * req.PageSize
-			queryParams.Offset = &offset
-		}
-		//车站名模糊查询
-		if req.Name != "" {
-			var keyword []model.Keyword
-			keyword = append(keyword, model.Keyword{Field: model.FieldName, Value: req.Name, Type: 0})
-			subquery := &model.SubQuery{
-				Keywords: keyword,
-			}
-			queryParams.SubQueries = append(queryParams.SubQueries, subquery)
-		}
-		err = operator.Database.ListEntityByFilter(model.TableNameStation, selector, queryParams, &stations)
-		if err != nil {
-			log.Error("车站数据查询失败. err:[%v]", err)
-			return nil, err
-		}
+	err = operator.Database.ListEntityByFilter(model.TableNameStation, selector, queryParams, &stations)
+	if err != nil {
+		log.Error("车站数据查询失败. err:[%v]", err)
+		return nil, err
 	}
+
 	resp.Load(count, stations)
 	return &resp, nil
 }
@@ -436,37 +450,44 @@ func (operator *ResourceOperator) QueryTrainScheduleList(req *apimodel.TrainSche
 		selector[model.FieldDepartureTime] = utils.ParseTime(layout, req.DepartureDate)
 	}
 
+	order := model.Order{
+		Field:     model.FieldUpdatedTime,
+		Direction: apimodel.OrderDesc,
+	}
+	queryParams.Orders = append(queryParams.Orders, order)
+	if req.PageSize > 0 {
+		queryParams.Limit = &req.PageSize
+		offset := (req.PageNo - 1) * req.PageSize
+		queryParams.Offset = &offset
+	}
+	//车号模糊查询
+	if req.TrainName != "" {
+		var keyword []model.Keyword
+		keyword = append(keyword, model.Keyword{Field: model.FieldTrainName, Value: req.TrainName, Type: 0})
+		subquery := &model.SubQuery{
+			Keywords: keyword,
+		}
+		queryParams.SubQueries = append(queryParams.SubQueries, subquery)
+	}
+
+	if req.StartTime != "" && req.EndTime != "" {
+		rangeQuery := &model.RangeQuery{
+			Field: model.FieldCreatedTime,
+			Start: req.StartTime,
+			End:   req.EndTime,
+		}
+		queryParams.RangeQueries = append(queryParams.RangeQueries, rangeQuery)
+	}
 	var count int64
 	var schedules []model.TrainSchedule
-	err := operator.Database.CountEntityByFilter(model.TableNameTrainSchedule, selector, model.OneQuery, &count)
+	err := operator.Database.CountEntityByFilter(model.TableNameTrainSchedule, selector, queryParams, &count)
 	if err != nil {
 		return nil, err
 	}
-	if count > 0 {
-		order := model.Order{
-			Field:     model.FieldUpdatedTime,
-			Direction: apimodel.OrderDesc,
-		}
-		queryParams.Orders = append(queryParams.Orders, order)
-		if req.PageSize > 0 {
-			queryParams.Limit = &req.PageSize
-			offset := (req.PageNo - 1) * req.PageSize
-			queryParams.Offset = &offset
-		}
-		//车号模糊查询
-		if req.TrainName != "" {
-			var keyword []model.Keyword
-			keyword = append(keyword, model.Keyword{Field: model.FieldTrainName, Value: req.TrainName, Type: 0})
-			subquery := &model.SubQuery{
-				Keywords: keyword,
-			}
-			queryParams.SubQueries = append(queryParams.SubQueries, subquery)
-		}
-		err = operator.Database.PreloadEntityByFilter(model.TableNameTrainSchedule, selector, queryParams, &schedules, []string{"Stops", "Seats"})
-		if err != nil {
-			log.Error("行驶计划数据查询失败. err:[%v]", err)
-			return nil, err
-		}
+	err = operator.Database.PreloadEntityByFilter(model.TableNameTrainSchedule, selector, queryParams, &schedules, []string{"Stops", "Seats"})
+	if err != nil {
+		log.Error("行驶计划数据查询失败. err:[%v]", err)
+		return nil, err
 	}
 	resp.Load(count, schedules)
 	return &resp, nil
@@ -664,28 +685,36 @@ func (operator *ResourceOperator) QueryTrainStopInfoList(req *apimodel.TrainStop
 		selector[model.FieldScheduleID] = req.ScheduleID
 	}
 
+	order := model.Order{
+		Field:     model.FieldUpdatedTime,
+		Direction: apimodel.OrderDesc,
+	}
+	queryParams.Orders = append(queryParams.Orders, order)
+	if req.PageSize > 0 {
+		queryParams.Limit = &req.PageSize
+		offset := (req.PageNo - 1) * req.PageSize
+		queryParams.Offset = &offset
+	}
+
+	if req.StartTime != "" && req.EndTime != "" {
+		rangeQuery := &model.RangeQuery{
+			Field: model.FieldCreatedTime,
+			Start: req.StartTime,
+			End:   req.EndTime,
+		}
+		queryParams.RangeQueries = append(queryParams.RangeQueries, rangeQuery)
+	}
+
 	var count int64
 	var stopList []model.TrainStop
-	err := operator.Database.CountEntityByFilter(model.TableNameTrainStop, selector, model.OneQuery, &count)
+	err := operator.Database.CountEntityByFilter(model.TableNameTrainStop, selector, queryParams, &count)
 	if err != nil {
 		return nil, err
 	}
-	if count > 0 {
-		order := model.Order{
-			Field:     model.FieldUpdatedTime,
-			Direction: apimodel.OrderDesc,
-		}
-		queryParams.Orders = append(queryParams.Orders, order)
-		if req.PageSize > 0 {
-			queryParams.Limit = &req.PageSize
-			offset := (req.PageNo - 1) * req.PageSize
-			queryParams.Offset = &offset
-		}
-		err = operator.Database.ListEntityByFilter(model.TableNameTrainStop, selector, queryParams, &stopList)
-		if err != nil {
-			log.Error("行驶计划数据查询失败. err:[%v]", err)
-			return nil, err
-		}
+	err = operator.Database.ListEntityByFilter(model.TableNameTrainStop, selector, queryParams, &stopList)
+	if err != nil {
+		log.Error("行驶计划数据查询失败. err:[%v]", err)
+		return nil, err
 	}
 	resp.Load(count, stopList)
 	return &resp, nil
@@ -728,7 +757,6 @@ func (operator *ResourceOperator) CreateTrainSeatInfo(req *apimodel.TrainSeatInf
 		})
 	}
 
-	fmt.Println(seatList)
 	//新增停靠信息
 	err = tx.Database.BatchCreateEntity(model.TableNameTrainSeat, seatList)
 	if err != nil {
@@ -768,29 +796,39 @@ func (operator *ResourceOperator) QueryTrainSeatInfoList(req *apimodel.TrainSeat
 		selector[model.FieldScheduleID] = req.ScheduleID
 	}
 
+	order := model.Order{
+		Field:     model.FieldUpdatedTime,
+		Direction: apimodel.OrderDesc,
+	}
+	queryParams.Orders = append(queryParams.Orders, order)
+	if req.PageSize > 0 {
+		queryParams.Limit = &req.PageSize
+		offset := (req.PageNo - 1) * req.PageSize
+		queryParams.Offset = &offset
+	}
+
+	if req.StartTime != "" && req.EndTime != "" {
+		rangeQuery := &model.RangeQuery{
+			Field: model.FieldCreatedTime,
+			Start: req.StartTime,
+			End:   req.EndTime,
+		}
+		queryParams.RangeQueries = append(queryParams.RangeQueries, rangeQuery)
+	}
+
 	var count int64
 	var seatList []model.TrainSeat
-	err := operator.Database.CountEntityByFilter(model.TableNameTrainSeat, selector, model.OneQuery, &count)
+	err := operator.Database.CountEntityByFilter(model.TableNameTrainSeat, selector, queryParams, &count)
 	if err != nil {
 		return nil, err
 	}
-	if count > 0 {
-		order := model.Order{
-			Field:     model.FieldUpdatedTime,
-			Direction: apimodel.OrderDesc,
-		}
-		queryParams.Orders = append(queryParams.Orders, order)
-		if req.PageSize > 0 {
-			queryParams.Limit = &req.PageSize
-			offset := (req.PageNo - 1) * req.PageSize
-			queryParams.Offset = &offset
-		}
-		err = operator.Database.ListEntityByFilter(model.TableNameTrainSeat, selector, queryParams, &seatList)
-		if err != nil {
-			log.Error("列车座位数据查询失败. err:[%v]", err)
-			return nil, err
-		}
+
+	err = operator.Database.ListEntityByFilter(model.TableNameTrainSeat, selector, queryParams, &seatList)
+	if err != nil {
+		log.Error("列车座位数据查询失败. err:[%v]", err)
+		return nil, err
 	}
+
 	resp.Load(count, seatList)
 	return &resp, nil
 }

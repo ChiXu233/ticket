@@ -181,6 +181,26 @@ func (operator *ResourceOperator) QueryUserOrderList(req *apimodel.UserOrderRequ
 	if req.Tag == "BeenCancelList" {
 		selector[model.FieldOrderIsCancel] = true
 	}
+
+	order := model.Order{
+		Field:     model.FieldUpdatedTime,
+		Direction: apimodel.OrderDesc,
+	}
+	queryParams.Orders = append(queryParams.Orders, order)
+	if req.PageSize > 0 {
+		queryParams.Limit = &req.PageSize
+		offset := (req.PageNo - 1) * req.PageSize
+		queryParams.Offset = &offset
+	}
+	if req.StartTime != "" && req.EndTime != "" {
+		rangeQuery := &model.RangeQuery{
+			Field: model.FieldCreatedTime,
+			Start: req.StartTime,
+			End:   req.EndTime,
+		}
+		queryParams.RangeQueries = append(queryParams.RangeQueries, rangeQuery)
+	}
+
 	if req.Tag == "WaitingPayList" {
 		//待支付
 		var orders []model.UserOrder
@@ -234,21 +254,11 @@ func (operator *ResourceOperator) QueryUserOrderList(req *apimodel.UserOrderRequ
 	} else if req.Tag == "WaitingDepartList" || req.Tag == "BeenDepartList" || req.Tag == "BeenCancelList" {
 		var count int64
 		var userOrders []model.UserOrder
-		err := operator.Database.CountEntityByFilter(model.TableNameUserOrder, selector, model.OneQuery, &count)
+		err := operator.Database.CountEntityByFilter(model.TableNameUserOrder, selector, queryParams, &count)
 		if err != nil {
 			return nil, err
 		}
 		if count > 0 {
-			order := model.Order{
-				Field:     model.FieldUpdatedTime,
-				Direction: apimodel.OrderDesc,
-			}
-			queryParams.Orders = append(queryParams.Orders, order)
-			if req.PageSize > 0 {
-				queryParams.Limit = &req.PageSize
-				offset := (req.PageNo - 1) * req.PageSize
-				queryParams.Offset = &offset
-			}
 			err = operator.Database.ListEntityByFilter(model.TableNameUserOrder, selector, queryParams, &userOrders)
 			if err != nil {
 				log.Error("订单数据查询失败. err:[%v]", err)
@@ -296,21 +306,11 @@ func (operator *ResourceOperator) QueryUserOrderList(req *apimodel.UserOrderRequ
 
 		var count int64
 		var userOrders []model.UserOrder
-		err = operator.Database.CountEntityByFilter(model.TableNameUserOrder, selector, model.OneQuery, &count)
+		err = operator.Database.CountEntityByFilter(model.TableNameUserOrder, selector, queryParams, &count)
 		if err != nil {
 			return nil, err
 		}
 		if count > 0 {
-			order := model.Order{
-				Field:     model.FieldUpdatedTime,
-				Direction: apimodel.OrderDesc,
-			}
-			queryParams.Orders = append(queryParams.Orders, order)
-			if req.PageSize > 0 {
-				queryParams.Limit = &req.PageSize
-				offset := (req.PageNo - 1) * req.PageSize
-				queryParams.Offset = &offset
-			}
 			err = operator.Database.ListEntityByFilter(model.TableNameUserOrder, selector, queryParams, &userOrders)
 			if err != nil {
 				log.Error("订单数据查询失败. err:[%v]", err)

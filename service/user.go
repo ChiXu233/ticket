@@ -145,78 +145,65 @@ func (operator *ResourceOperator) QueryUserList(req *apimodel.UserInfoRequest) (
 	if req.Username != "" {
 		selector[model.FieldUserName] = req.Username
 	}
-	////用户名查
-	//if req.NickName != "" {
-	//	selector[model.FieldNickName] = req.NickName
-	//}
-	////电话查
-	//if req.Phone != "" {
-	//	selector[model.FieldUserPhone] = req.Phone
-	//}
-	////邮箱查
-	//if req.Email != "" {
-	//	selector[model.FieldUserEmail] = req.Email
-	//}
+	order := model.Order{
+		Field:     model.FieldUpdatedTime,
+		Direction: apimodel.OrderDesc,
+	}
+	queryParams.Orders = append(queryParams.Orders, order)
+	if req.PageSize > 0 {
+		queryParams.Limit = &req.PageSize
+		offset := (req.PageNo - 1) * req.PageSize
+		queryParams.Offset = &offset
+	}
+	//模糊查询
+	//用户名
+	if req.NickName != "" {
+		var keyword []model.Keyword
+		keyword = append(keyword, model.Keyword{Field: model.FieldNickName, Value: req.NickName, Type: 0})
+		subquery := &model.SubQuery{
+			Keywords: keyword,
+		}
+		queryParams.SubQueries = append(queryParams.SubQueries, subquery)
+	}
+	//电话号
+	if req.Phone != "" {
+		var keyword []model.Keyword
+		keyword = append(keyword, model.Keyword{Field: model.FieldUserPhone, Value: req.Phone, Type: 0})
+		subquery := &model.SubQuery{
+			Keywords: keyword,
+		}
+		queryParams.SubQueries = append(queryParams.SubQueries, subquery)
+	}
+	//邮箱
+	if req.Email != "" {
+		var keyword []model.Keyword
+		keyword = append(keyword, model.Keyword{Field: model.FieldUserEmail, Value: req.Email, Type: 0})
+		subquery := &model.SubQuery{
+			Keywords: keyword,
+		}
+		queryParams.SubQueries = append(queryParams.SubQueries, subquery)
+	}
+	if req.StartTime != "" && req.EndTime != "" {
+		rangeQuery := &model.RangeQuery{
+			Field: model.FieldCreatedTime,
+			Start: req.StartTime,
+			End:   req.EndTime,
+		}
+		queryParams.RangeQueries = append(queryParams.RangeQueries, rangeQuery)
+	}
+
 	var count int64
 	var users []model.User
-	err := operator.Database.CountEntityByFilter(model.TableNameUser, selector, model.OneQuery, &count)
+	err := operator.Database.CountEntityByFilter(model.TableNameUser, selector, queryParams, &count)
 	if err != nil {
 		return nil, err
 	}
-	if count > 0 {
-		order := model.Order{
-			Field:     model.FieldUpdatedTime,
-			Direction: apimodel.OrderDesc,
-		}
-		queryParams.Orders = append(queryParams.Orders, order)
-		if req.PageSize > 0 {
-			queryParams.Limit = &req.PageSize
-			offset := (req.PageNo - 1) * req.PageSize
-			queryParams.Offset = &offset
-		}
-		//模糊查询
-		////账号
-		//if req.Username != "" {
-		//	var keyword []model.Keyword
-		//	keyword = append(keyword, model.Keyword{Field: model.FieldUserName, Value: req.Username, Type: 0})
-		//	subquery := &model.SubQuery{
-		//		Keywords: keyword,
-		//	}
-		//	queryParams.SubQueries = append(queryParams.SubQueries, subquery)
-		//}
-		//用户名
-		if req.NickName != "" {
-			var keyword []model.Keyword
-			keyword = append(keyword, model.Keyword{Field: model.FieldNickName, Value: req.NickName, Type: 0})
-			subquery := &model.SubQuery{
-				Keywords: keyword,
-			}
-			queryParams.SubQueries = append(queryParams.SubQueries, subquery)
-		}
-		//电话号
-		if req.Phone != "" {
-			var keyword []model.Keyword
-			keyword = append(keyword, model.Keyword{Field: model.FieldUserPhone, Value: req.Phone, Type: 0})
-			subquery := &model.SubQuery{
-				Keywords: keyword,
-			}
-			queryParams.SubQueries = append(queryParams.SubQueries, subquery)
-		}
-		//邮箱
-		if req.Email != "" {
-			var keyword []model.Keyword
-			keyword = append(keyword, model.Keyword{Field: model.FieldUserEmail, Value: req.Email, Type: 0})
-			subquery := &model.SubQuery{
-				Keywords: keyword,
-			}
-			queryParams.SubQueries = append(queryParams.SubQueries, subquery)
-		}
-		err = operator.Database.ListEntityByFilter(model.TableNameUser, selector, queryParams, &users)
-		if err != nil {
-			log.Error("地图数据查询失败. err:[%v]", err)
-			return nil, err
-		}
+	err = operator.Database.ListEntityByFilter(model.TableNameUser, selector, queryParams, &users)
+	if err != nil {
+		log.Error("用户数据查询失败. err:[%v]", err)
+		return nil, err
 	}
+
 	resp.Load(count, users)
 	return &resp, nil
 }

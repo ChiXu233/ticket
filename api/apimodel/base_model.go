@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gorm.io/gorm/utils"
 	"ticket-service/httpserver/errcode"
+	util "ticket-service/pkg/utils"
 )
 
 const (
@@ -32,10 +33,12 @@ var (
 )
 
 type PaginationRequest struct {
-	PageNo   int    `json:"page_no" form:"page_no"`
-	PageSize int    `json:"page_size" form:"page_size"`
-	OrderBy  string `json:"order_by" form:"order_by"`
-	Order    string `json:"order" form:"order"`
+	PageNo    int    `json:"page_no" form:"page_no"`
+	PageSize  int    `json:"page_size" form:"page_size"`
+	OrderBy   string `json:"order_by" form:"order_by"`
+	Order     string `json:"order" form:"order"`
+	StartTime string `json:"start_time" form:"start_time"`
+	EndTime   string `json:"end_time" form:"end_time"`
 }
 
 func (req PaginationRequest) Valid(orderByList []string) error {
@@ -52,6 +55,13 @@ func (req PaginationRequest) Valid(orderByList []string) error {
 	if req.Order != OrderDesc && req.Order != OrderAsc {
 		return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "[order]")
 	}
+	if util.TimeFormat(util.ParseTime("2006-01-02 15:04:05", req.StartTime)) != req.StartTime {
+		return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "[start_time]")
+	}
+	if util.TimeFormat(util.ParseTime("2006-01-02 15:04:05", req.EndTime)) != req.EndTime {
+		return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "[end_time]")
+	}
+
 	return nil
 }
 

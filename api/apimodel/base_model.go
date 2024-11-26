@@ -55,10 +55,10 @@ func (req PaginationRequest) Valid(orderByList []string) error {
 	if req.Order != OrderDesc && req.Order != OrderAsc {
 		return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "[order]")
 	}
-	if util.TimeFormat(util.ParseTime("2006-01-02 15:04:05", req.StartTime)) != req.StartTime {
+	if req.StartTime != "" && util.TimeFormat(util.ParseTime("2006-01-02 15:04:05", req.StartTime)) != req.StartTime {
 		return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "[start_time]")
 	}
-	if util.TimeFormat(util.ParseTime("2006-01-02 15:04:05", req.EndTime)) != req.EndTime {
+	if req.EndTime != "" && util.TimeFormat(util.ParseTime("2006-01-02 15:04:05", req.EndTime)) != req.EndTime {
 		return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "[end_time]")
 	}
 

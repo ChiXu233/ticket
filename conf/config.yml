@@ -35,3 +35,14 @@ jwt:
   expires-time: 7d
   buffer-time: 1d
   issuer: admin
+
+#验证码
+digitDriver:
+  height: 50
+  width: 200
+#验证码长度
+  length: 4
+#背景的点数，越大，字体越模糊
+  dot-count: 1
+# 过期时间-分钟
+  expire-time: 2

@@ -7,6 +7,7 @@ import (
 	config "ticket-service/conf"
 	"ticket-service/database"
 	"ticket-service/httpserver"
+	"ticket-service/pkg/utils/captcha"
 	"ticket-service/pkg/utils/redis"
 )
 
@@ -30,6 +31,9 @@ func main() {
 	if err != nil {
 		panic("init redis with error:" + err.Error())
 	}
+
+	//读取登录验证码配置
+	captcha.InitCaptchaDriver()
 
 	err = handler.NewHandler().Operator.LoadStation_CodeMap() //车站id-name静态资源对应表，减少sql压力
 	if err != nil {

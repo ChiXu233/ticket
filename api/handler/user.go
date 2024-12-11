@@ -6,6 +6,7 @@ import (
 	"ticket-service/api/apimodel"
 	"ticket-service/httpserver/app"
 	"ticket-service/httpserver/errcode"
+	"ticket-service/pkg/utils/captcha"
 )
 
 func (handler *RestHandler) Login(c *gin.Context) {
@@ -18,6 +19,14 @@ func (handler *RestHandler) Login(c *gin.Context) {
 	err = req.Valid(apimodel.ValidOptLogin)
 	if err != nil {
 		app.SendParameterErrorResponse(c, err.Error())
+		return
+	}
+	param := captcha.Data{
+		CaptchaId: req.PicId,
+		Answer:    req.Answer,
+	}
+	if !captcha.Verify(param) {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgValidateCaptcha, nil)
 		return
 	}
 	resp, err := handler.Operator.Login(c, req)
@@ -151,6 +160,32 @@ func (handler *RestHandler) ResetPassword(c *gin.Context) {
 	err = handler.Operator.ResetPassword(&req)
 	if err != nil {
 		app.SendServerErrorResponse(c, errcode.ErrorMsgUpdateData, err)
+		return
+	}
+	app.Success(c, nil)
+}
+
+func (handler *RestHandler) GetCaptcha(c *gin.Context) {
+	captchaData, err := captcha.Generate()
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgCaptcha, err)
+		return
+	}
+	res := map[string]interface{}{
+		"pic_id":   captchaData.CaptchaId,
+		"pic_data": captchaData.Data,
+	}
+	app.Success(c, res)
+}
+
+func (handler *RestHandler) CheckCaptcha(c *gin.Context) {
+	var param captcha.Data
+	if err := c.ShouldBind(&param); err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgValidateParam, err)
+		return
+	}
+	if !captcha.Verify(param) {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgValidateCaptcha, nil)
 		return
 	}
 	app.Success(c, nil)

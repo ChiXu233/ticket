@@ -41,13 +41,21 @@ var DefaultConfig = Config{
 		//MaTeachProgressKey: "ma_teach_progress",
 	},
 	JWT: JWT{},
+	DigitDriver: DigitDriver{
+		Height:     50,
+		Width:      200,
+		Length:     4, //验证码长度
+		NoiseCount: 0, //干扰点数量，越大，字体越模糊
+		ExpireTime: 1,
+	},
 }
 
 type Config struct {
-	APP   APP   `json:"app" yaml:"app"`
-	DB    DB    `json:"db" yaml:"db"`
-	Redis Redis `json:"redis" yaml:"redis"`
-	JWT   JWT   `json:"jwt" yaml:"jwt"`
+	APP         APP         `json:"app" yaml:"app"`
+	DB          DB          `json:"db" yaml:"db"`
+	Redis       Redis       `json:"redis" yaml:"redis"`
+	JWT         JWT         `json:"jwt" yaml:"jwt"`
+	DigitDriver DigitDriver `json:"digitDriver" yaml:"digitDriver"`
 }
 
 type APP struct {
@@ -83,6 +91,15 @@ type JWT struct {
 	ExpiresTime string `json:"expires-time" yaml:"expires-time"` // 过期时间
 	BufferTime  string `json:"buffer-time" yaml:"buffer-time"`   // 缓冲时间
 	Issuer      string `json:"issuer" yaml:"issuer"`             // 签发者
+}
+
+// DigitDriver 验证码数字驱动
+type DigitDriver struct {
+	Height     int `json:"height" yaml:"height"`
+	Width      int `json:"width" yaml:"width"`
+	Length     int `json:"length" yaml:"length"`           //验证码字符数量
+	NoiseCount int `json:"noise_count" yaml:"noise-count"` //背景的点数，越大，字体越模糊
+	ExpireTime int `json:"expire_time" yaml:"expire-time"`
 }
 
 func InitConfig() error {

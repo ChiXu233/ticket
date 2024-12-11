@@ -39,6 +39,8 @@ type UserInfoRequest struct {
 	Email     string `json:"email" form:"email"`          // 用户邮箱
 	CreatedAt string `json:"created_time"`
 	UpdatedAt string `json:"updated_time"`
+	PicId     string `json:"pic_id" form:"pic_id"`
+	Answer    string `json:"answer" form:"answer"`
 	PaginationRequest
 }
 
@@ -150,6 +152,12 @@ func (req UserInfoRequest) Valid(opt string) error {
 		}
 		if req.Password == "" {
 			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "password")
+		}
+		if req.PicId == "" {
+			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "验证码图片id")
+		}
+		if req.Answer == "" {
+			return fmt.Errorf(errcode.ErrorMsgPrefixInvalidParameter, "验证码")
 		}
 	} else {
 		orderByFields := []string{model.FieldID, model.FieldName, model.FieldCreatedTime, model.FieldUpdatedTime}

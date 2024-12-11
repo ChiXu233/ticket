@@ -37,7 +37,6 @@ var g = &singleflight.Group{}
 
 func NewJWT() *JWT {
 	return &JWT{
-
 		SigningKey: []byte(config.Conf.JWT.SigningKey),
 	}
 }

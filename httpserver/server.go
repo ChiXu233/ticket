@@ -56,6 +56,10 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 		v1.POST("/change_password", restHandler.ChangePassword)
 		v1.POST("/reset_password", restHandler.ResetPassword)
 
+		//验证码
+		v1.GET("/get_captcha", restHandler.GetCaptcha)
+		v1.POST("/check_captcha", restHandler.CheckCaptcha)
+
 		//列车基本信息
 		v1.POST("/create_train_info", restHandler.CreateTrain)
 		v1.GET("/query_train_info", restHandler.QueryTrainList)

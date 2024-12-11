@@ -42,6 +42,8 @@ const (
 	ErrorMsgUserLogin          = "用户登录失败"
 	ErrorMsgUserPassword       = "密码错误"
 	ErrorMsgUserChangePass     = "旧密码错误"
+	ErrorMsgCaptcha            = "验证码生成错误"
+	ErrorMsgValidateCaptcha    = "验证码错误"
 
 	ErrorMsgGetUserInfo  = "用户信息获取失败"
 	ErrorMsgUserLoginOut = "退出登录失败"

@@ -28,6 +28,10 @@ const (
 	TableNameTrainStop     = "train_stop"
 	TableNameTrainSeat     = "train_seat"
 	TableNameUserOrder     = "user_order"
+	TableNameRole          = "role"
+	TableNameRouters       = "routers"
+	TableNameRoleRouters   = "routers_roles"
+	TableNameUserRoles     = "user_roles"
 
 	FieldUUID          = "uuid"
 	FieldID            = "id"
@@ -44,6 +48,12 @@ const (
 	FieldScheduleID    = "schedule_id"
 	FieldDepartureTime = "departure_date"
 	FieldSeatType      = "seat_type"
+	FieldSeatNums      = "seat_nums"
+	FieldSeatNowNums   = "seat_now_nums"
+	FieldUri           = "uri"
+	FieldMethod        = "Method"
+	FieldRoutersID     = "routers_id"
+	FieldRoleID        = "role_id"
 
 	FieldStartPosition   = "start"
 	FieldEndPosition     = "end"
@@ -58,4 +68,12 @@ const (
 	FieldCreatedTime = "created_at"
 	FieldUpdatedTime = "updated_at"
 	FieldDeletedTime = "deleted_at"
+)
+
+const (
+	PreloadUser    = "Users"
+	PreloadRoles   = "Roles"
+	PreloadRouters = "Routers"
+	PreloadStops   = "Stops"
+	PreloadSeats   = "Seats"
 )

@@ -24,6 +24,18 @@ type Operator interface {
 	QueryUserByUUID(uuid uuid.UUID) error
 	ResetPassword(req *apimodel.UserChangePWRequest) error
 
+	//路由管理
+	CreateRouter(req *apimodel.RoutersInfoRequest) error
+	QueryRouterList(req *apimodel.RoutersInfoRequest) (*apimodel.RoutersInfoPageResponse, error)
+	DeleteRouter(req *apimodel.RoutersInfoRequest) error
+	UpdateRouter(req *apimodel.RoutersInfoRequest) error
+
+	//角色管理
+	CreateRole(req *apimodel.RoleInfoRequest) error
+	QueryRoleList(req *apimodel.RoleInfoRequest) (*apimodel.RoleInfoPageResponse, error)
+	DeleteRole(req *apimodel.RoleInfoRequest) error
+	UpdateRole(req *apimodel.RoleInfoRequest) error
+
 	//车辆
 	CreateTrain(req *apimodel.TrainInfoRequest) error
 	QueryTrainList(req *apimodel.TrainInfoRequest) (*apimodel.TrainInfoPageResponse, error)

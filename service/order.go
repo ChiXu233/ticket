@@ -39,7 +39,7 @@ func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest
 	var schedule model.TrainSchedule
 	selector = make(map[string]interface{})
 	selector[model.FieldID] = req.ScheduleID
-	err = tx.Database.PreloadEntityByFilter(model.TableNameTrainSchedule, selector, model.OneQuery, &schedule, []string{"Stops", "Seats"})
+	err = tx.Database.PreloadEntityByFilter(model.TableNameTrainSchedule, selector, model.OneQuery, &schedule, []string{model.PreloadStops, model.PreloadSeats})
 	if err != nil {
 		log.Error("行驶计划数据查询失败. err:[%v]", err)
 		return uuid.Nil, err
@@ -96,7 +96,7 @@ func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest
 
 	//加锁
 	mutex.Lock()
-	err = tx.Database.ReduceEntityRowsByFilter(model.TableNameTrainSeat, selector, model.OneQuery, "seat_now_nums", "1")
+	err = tx.Database.ReduceEntityRowsByFilter(model.TableNameTrainSeat, selector, model.OneQuery, model.FieldSeatNowNums, "1")
 	if err != nil {
 		if err.Error() == "NoNums" {
 			mutex.Unlock()
@@ -106,7 +106,7 @@ func (operator *ResourceOperator) CreateUserOrder(req *apimodel.UserOrderRequest
 		mutex.Unlock()
 		return uuid.Nil, err
 	}
-	err = tx.Database.ListEntityBySelectFilter(model.TableNameTrainSeat, selector, model.OneQuery, &seat_num_data, []string{"id", "seat_nums", "seat_now_nums"})
+	err = tx.Database.ListEntityBySelectFilter(model.TableNameTrainSeat, selector, model.OneQuery, &seat_num_data, []string{model.FieldID, model.FieldSeatNums, model.FieldSeatNowNums})
 	if err != nil {
 		return uuid.Nil, fmt.Errorf(errcode.ErrorMsgListData)
 	}
@@ -418,7 +418,7 @@ func (operator *ResourceOperator) CancelUserOrder(req *apimodel.UserOrderRequest
 		selector = make(map[string]interface{})
 		selector[model.FieldScheduleID] = order.ScheduleID
 		selector[model.FieldSeatType] = order.SeatType
-		err = tx.Database.AddEntityRowsByFilter(model.TableNameTrainSeat, selector, model.OneQuery, "seat_now_nums", "1")
+		err = tx.Database.AddEntityRowsByFilter(model.TableNameTrainSeat, selector, model.OneQuery, model.FieldSeatNowNums, "1")
 		if err != nil {
 			log.Error("定时任务.恢复库存失败 err:[%v]", err)
 			return err
@@ -519,7 +519,7 @@ func (operator *ResourceOperator) DeleteUserOrder(req *apimodel.UserOrderRequest
 		selector = make(map[string]interface{})
 		selector[model.FieldScheduleID] = order.ScheduleID
 		selector[model.FieldSeatType] = order.SeatType
-		err = tx.Database.AddEntityRowsByFilter(model.TableNameTrainSeat, selector, model.OneQuery, "seat_now_nums", "1")
+		err = tx.Database.AddEntityRowsByFilter(model.TableNameTrainSeat, selector, model.OneQuery, model.FieldSeatNowNums, "1")
 		if err != nil {
 			log.Error("定时任务.恢复库存失败 err:[%v]", err)
 			return err

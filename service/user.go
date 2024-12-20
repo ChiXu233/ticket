@@ -21,10 +21,14 @@ func (operator *ResourceOperator) Login(c *gin.Context, req apimodel.UserInfoReq
 	var resp apimodel.LoginResponse
 	selector := make(map[string]interface{})
 	selector[model.FieldUserName] = req.Username
-	err := operator.Database.ListEntityByFilter(model.TableNameUser, selector, model.OneQuery, &opt)
+	err := operator.Database.PreloadEntityByFilter(model.TableNameUser, selector, model.OneQuery, &opt, []string{model.PreloadRoles})
 	if err != nil {
 		log.Error("用户名查找失败. err:[%v]", err)
 		return nil, err
+	}
+	var roleName string
+	if opt.Roles != nil {
+		roleName = opt.Roles[0].Name
 	}
 	if opt.ID <= 0 {
 		return nil, fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "用户名")
@@ -37,7 +41,7 @@ func (operator *ResourceOperator) Login(c *gin.Context, req apimodel.UserInfoReq
 		UUID:     opt.UUID,
 		ID:       uint64(opt.ID),
 		Username: opt.Username,
-		//AuthorityId: 1,
+		RoleName: roleName,
 	})
 	token, err := j.CreateToken(claims)
 	if err != nil {
@@ -48,7 +52,6 @@ func (operator *ResourceOperator) Login(c *gin.Context, req apimodel.UserInfoReq
 	resp.Token = token
 	resp.ExpireAt = claims.RegisteredClaims.ExpiresAt.Unix() * 1000
 	return &resp, nil
-
 }
 
 func (operator *ResourceOperator) Register(req *apimodel.UserInfoRequest) error {
@@ -128,6 +131,13 @@ func (operator *ResourceOperator) DeleteUser(req *apimodel.UserInfoRequest) erro
 		log.Error("用户数据删除失败. err:[%v]", err)
 		return err
 	}
+	selector = make(map[string]interface{})
+	selector[model.FieldUserID] = req.ID
+	err = operator.Database.DeleteEntityByFilter(model.TableNameUserRoles, selector, queryParams, &model.User{})
+	if err != nil {
+		log.Error("用户数据删除失败. err:[%v]", err)
+		return err
+	}
 	return nil
 }
 func (operator *ResourceOperator) QueryUserList(req *apimodel.UserInfoRequest) (*apimodel.UserPageResponse, error) {
@@ -198,7 +208,7 @@ func (operator *ResourceOperator) QueryUserList(req *apimodel.UserInfoRequest) (
 	if err != nil {
 		return nil, err
 	}
-	err = operator.Database.ListEntityByFilter(model.TableNameUser, selector, queryParams, &users)
+	err = operator.Database.PreloadEntityByFilter(model.TableNameUser, selector, queryParams, &users, []string{model.PreloadRoles})
 	if err != nil {
 		log.Error("用户数据查询失败. err:[%v]", err)
 		return nil, err

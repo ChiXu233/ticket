@@ -46,7 +46,7 @@ func (operator *ResourceOperator) TimerFreeOrder(timeAfter time.Duration, order 
 					selector := make(map[string]interface{})
 					selector[model.FieldScheduleID] = order.ScheduleID
 					selector[model.FieldSeatType] = order.SeatType
-					err = tx.Database.AddEntityRowsByFilter(model.TableNameTrainSeat, selector, model.OneQuery, "seat_now_nums", "1")
+					err = tx.Database.AddEntityRowsByFilter(model.TableNameTrainSeat, selector, model.OneQuery, model.FieldSeatNowNums, "1")
 					if err != nil {
 						log.Error("定时任务.恢复库存失败 err:[%v]", err)
 						return

@@ -18,7 +18,7 @@ const nilTime = "1970-01-01 00:00:00"
 func (operator *ResourceOperator) LoadStation_CodeMap() error {
 	var station_data []model.Station
 	selector := make(map[string]interface{})
-	err := operator.Database.ListEntityBySelectFilter(model.TableNameStation, selector, model.QueryParams{}, &station_data, []string{"id", "name"})
+	err := operator.Database.ListEntityBySelectFilter(model.TableNameStation, selector, model.QueryParams{}, &station_data, []string{model.FieldID, model.FieldName})
 	if err != nil {
 		log.Error("加载车站-id表失败. err:[%v]", err)
 		return err
@@ -484,7 +484,7 @@ func (operator *ResourceOperator) QueryTrainScheduleList(req *apimodel.TrainSche
 	if err != nil {
 		return nil, err
 	}
-	err = operator.Database.PreloadEntityByFilter(model.TableNameTrainSchedule, selector, queryParams, &schedules, []string{"Stops", "Seats"})
+	err = operator.Database.PreloadEntityByFilter(model.TableNameTrainSchedule, selector, queryParams, &schedules, []string{model.PreloadStops, model.PreloadSeats})
 	if err != nil {
 		log.Error("行驶计划数据查询失败. err:[%v]", err)
 		return nil, err

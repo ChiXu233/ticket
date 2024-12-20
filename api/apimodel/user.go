@@ -11,6 +11,19 @@ import (
 //base struct
 
 type UserInfo struct {
+	ID        int           `json:"id"`
+	UUID      uuid.UUID     `json:"uuid"`     // 用户UUID
+	Username  string        `json:"username"` // 用户登录名
+	Password  string        `json:"password"` // 用户登录密码
+	NickName  string        `json:"nickName"` // 用户昵称
+	Phone     string        `json:"phone" `   // 用户手机号
+	Email     string        `json:"email"`    // 用户邮箱
+	Roles     []PreloadRole `json:"roles"`    //用户角色信息
+	CreatedAt string        `json:"created_time"`
+	UpdatedAt string        `json:"updated_time"`
+}
+
+type PreloadUser struct {
 	ID        int       `json:"id"`
 	UUID      uuid.UUID `json:"uuid"`     // 用户UUID
 	Username  string    `json:"username"` // 用户登录名
@@ -65,6 +78,7 @@ type LoginResponse struct {
 	NickName  string
 	Phone     string
 	Email     string
+	Role      []PreloadRole
 	CreatedAt string
 	UpdatedAt string
 	TokenInfo
@@ -82,6 +96,13 @@ func (u *UserInfo) Load(userData model.User) {
 	u.Email = userData.Email
 	u.CreatedAt = utils.TimeFormat(userData.CreatedAt)
 	u.UpdatedAt = utils.TimeFormat(userData.UpdatedAt)
+	for _, v := range userData.Roles {
+		u.Roles = append(u.Roles, PreloadRole{
+			ID:      v.ID,
+			Name:    v.Name,
+			Comment: v.Comment,
+		})
+	}
 }
 
 func (t *LoginResponse) Load(userData model.User) {
@@ -93,6 +114,13 @@ func (t *LoginResponse) Load(userData model.User) {
 	t.Email = userData.Email
 	t.CreatedAt = utils.TimeFormat(userData.CreatedAt)
 	t.UpdatedAt = utils.TimeFormat(userData.UpdatedAt)
+	for _, v := range userData.Roles {
+		t.Role = append(t.Role, PreloadRole{
+			ID:      v.ID,
+			Name:    v.Name,
+			Comment: v.Comment,
+		})
+	}
 }
 
 //DataLoading

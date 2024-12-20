@@ -143,6 +143,11 @@ func (db *OrmDB) ListEntityBySelectFilter(table string, filter map[string]interf
 	return nil
 }
 
+/* 获取表中关联数据
+@PreloadEntityByFilter
+preloads 是要预加载的结构体关联字段名称
+*/
+
 func (db *OrmDB) PreloadEntityByFilter(table string, filter map[string]interface{}, params model.QueryParams, entities interface{}, preloads []string) error {
 	if reflect.ValueOf(entities).Kind() != reflect.Ptr {
 		return errors.New("PreloadEntityByFilter [entities] Kind Must Ptr")

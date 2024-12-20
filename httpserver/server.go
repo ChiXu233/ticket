@@ -22,6 +22,7 @@ func CreateHttpServer() *gin.Engine {
 		middleware.RequestInfo(),
 		middleware.Cors(),
 		gin.Recovery(),
+		//middleware.RBAC(),
 	}
 	// 路由注册，中间件引入
 	RegisterRoutes(engine, middlewareList)
@@ -45,7 +46,11 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 	restHandler := handler.NewHandler()
 	v1.POST("/login", restHandler.Login)
 	v1.POST("/register", restHandler.Register)
-	//v1.Use(middleware.JWTAuth())
+
+	//验证码
+	v1.GET("/get_captcha", restHandler.GetCaptcha)
+
+	v1.Use(middleware.JWTAuth())
 	v1.Group("")
 	{
 
@@ -57,7 +62,6 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 		v1.POST("/reset_password", restHandler.ResetPassword)
 
 		//验证码
-		v1.GET("/get_captcha", restHandler.GetCaptcha)
 		v1.POST("/check_captcha", restHandler.CheckCaptcha)
 
 		//列车基本信息
@@ -98,6 +102,18 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 		v1.POST("/cancel_user_order", restHandler.CancelUserOrder)
 		v1.POST("/pay_user_order", restHandler.PayUserOrder)
 		v1.DELETE("/delete_user_order/:uuid", restHandler.DeleteUserOrder)
+
+		//api列表
+		v1.POST("/create_router", restHandler.CreateRouter)
+		v1.GET("/query_router", restHandler.QueryRouterList)
+		v1.POST("/update_router", restHandler.UpdateRouter)
+		v1.DELETE("/delete_router/:id", restHandler.DeleteRouter)
+
+		//权限角色列表
+		v1.POST("/create_role", restHandler.CreateRole)
+		v1.GET("/query_role", restHandler.QueryRoleList)
+		v1.POST("/update_role", restHandler.UpdateRole)
+		v1.DELETE("/delete_role/:id", restHandler.DeleteRole)
 
 		//日志
 		//v1.GET("/log_list", restHandler.QueryLogList)

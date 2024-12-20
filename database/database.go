@@ -41,6 +41,7 @@ type Database interface {
 	Begin() (Database, error)
 	Commit() error
 	Rollback() error
+	GetDB() *gorm.DB
 }
 
 func InitDB() error {
@@ -117,7 +118,22 @@ func initTable(db *gorm.DB) {
 	if err != nil {
 		log.Error("init table[%s] error.[%s]", model.TableNameUserOrder, err.Error())
 	}
-
+	err = db.AutoMigrate(&model.Role{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameRole, err.Error())
+	}
+	err = db.AutoMigrate(&model.Routers{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameRouters, err.Error())
+	}
+	err = db.AutoMigrate(&model.RoleRouters{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameRoleRouters, err.Error())
+	}
+	err = db.AutoMigrate(&model.UserRoles{})
+	if err != nil {
+		log.Error("init table[%s] error.[%s]", model.TableNameUserRoles, err.Error())
+	}
 }
 
 func (db *OrmDB) Begin() (Database, error) {
@@ -142,6 +158,10 @@ func (ormdb *OrmDB) Rollback() error {
 		return err
 	}
 	return nil
+}
+
+func (ormdb *OrmDB) GetDB() *gorm.DB {
+	return ormdb.DB
 }
 
 // NewSqliteDatabase for unit test

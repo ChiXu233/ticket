@@ -6,6 +6,7 @@ import (
 	"ticket-service/api/handler"
 	config "ticket-service/conf"
 	"ticket-service/database"
+	"ticket-service/database/casbin"
 	"ticket-service/httpserver"
 	"ticket-service/pkg/utils/captcha"
 	"ticket-service/pkg/utils/redis"
@@ -30,6 +31,11 @@ func main() {
 	err = redis.InitRedis()
 	if err != nil {
 		panic("init redis with error:" + err.Error())
+	}
+
+	err = casbin.InitCasbin()
+	if err != nil {
+		panic("init casbin with error:" + err.Error())
 	}
 
 	//读取登录验证码配置

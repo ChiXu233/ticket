@@ -8,9 +8,10 @@ import (
 	"strconv"
 	"ticket-service/api/handler"
 	config "ticket-service/conf"
+	"ticket-service/database/casbin"
 	"ticket-service/httpserver/app"
 	"ticket-service/httpserver/errcode"
-	utils "ticket-service/pkg/utils"
+	"ticket-service/pkg/utils"
 	"time"
 )
 
@@ -45,14 +46,12 @@ func JWTAuth() gin.HandlerFunc {
 			}
 			//验证失败
 			app.SendAuthorizedErrorResponse(c, errcode.ErrorMsgUnauthorized)
-			//response.FailWithDetailed(gin.H{"reload": true}, err.Error(), c)
 			utils.ClearToken(c)
 			c.Abort()
 			return
 		}
 
 		//判断该token所携带用户信息是否正确
-
 		if claims.Issuer != config.Conf.JWT.Issuer {
 			app.SendAuthorizedErrorResponse(c, errcode.ErrorMsgUnknownToken)
 			utils.ClearToken(c)
@@ -68,13 +67,12 @@ func JWTAuth() gin.HandlerFunc {
 			return
 		}
 
-		// 已登录用户被管理员禁用 需要使该用户的jwt失效 此处比较消耗性能 如果需要 请自行打开
-		// 用户被删除的逻辑 需要优化 此处比较消耗性能 如果需要 请自行打开
-		//if user, err := userService.FindUserByUuid(claims.UUID.String()); err != nil || user.Enable == 2 {
-		//	_ = jwtService.JsonInBlacklist(system.JwtBlacklist{Jwt: token})
-		//	response.FailWithDetailed(gin.H{"reload": true}, err.Error(), c)
-		//	c.Abort()
-		//}
+		//走casbin鉴权
+		// todo 通过mysql中存储的policy资源实现鉴权
+		if has, err := casbin.E.Enforce(claims.RoleName, c.Request.URL.Path, c.Request.Method); err != nil || !has {
+			app.SendAuthorizedErrorResponse(c, errcode.ErrorMsgNotAuth)
+			c.Abort()
+		}
 
 		c.Set("claims", claims)
 		c.Next()

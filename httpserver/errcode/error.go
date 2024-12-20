@@ -20,6 +20,7 @@ const (
 	ErrorMsgExpireToken       = "token过期"
 	ErrorCodeNotfound         = 404
 	ErrorMsgNotfound          = "无资源错误"
+	ErrorMsgNotAuth           = "暂无权限"
 
 	// ErrorMsgPrefixInvalidParameter 错误信息前缀
 	ErrorMsgPrefixInvalidParameter = "参数验证错误%v"

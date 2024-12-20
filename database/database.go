@@ -63,6 +63,7 @@ func InitDB() error {
 	}
 
 	if config.Conf.DB.InitTable {
+		resetTable(db)
 		initTable(db)
 	}
 
@@ -87,6 +88,14 @@ func GetDatabase() Database {
 // SetMockDatabase for unit test
 func SetMockDatabase(mockDB Database) {
 	ormDB = mockDB
+}
+
+func resetTable(db *gorm.DB) {
+	//每次重启重置casbin_rule表
+	err := db.Migrator().DropTable(model.TableNameCasBinRule)
+	if err != nil {
+		log.Error("reset table[%s] error.[%s]", model.TableNameCasBinRule, err.Error())
+	}
 }
 
 func initTable(db *gorm.DB) {

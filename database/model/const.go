@@ -32,6 +32,7 @@ const (
 	TableNameRouters       = "routers"
 	TableNameRoleRouters   = "routers_roles"
 	TableNameUserRoles     = "user_roles"
+	TableNameCasBinRule    = "casbin_rule"
 
 	FieldUUID          = "uuid"
 	FieldID            = "id"

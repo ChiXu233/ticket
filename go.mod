@@ -7,6 +7,7 @@ toolchain go1.22.10
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/IBM/sarama v1.43.3
+	github.com/casbin/casbin/v2 v2.102.0
 	github.com/casbin/gorm-adapter/v3 v3.32.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-redis/redis v6.15.9+incompatible
@@ -28,7 +29,6 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
-	github.com/casbin/casbin/v2 v2.102.0 // indirect
 	github.com/casbin/govaluate v1.2.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect

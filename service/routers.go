@@ -31,7 +31,6 @@ func (operator *ResourceOperator) CreateRouter(req *apimodel.RoutersInfoRequest)
 	if err != nil {
 		return err
 	}
-
 	err = operator.Database.CreateEntity(model.TableNameRouters, &opt)
 	if err != nil {
 		log.Error("创建route. err:[%v]", err)

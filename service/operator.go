@@ -23,6 +23,8 @@ type Operator interface {
 	ChangePassword(req *apimodel.UserChangePWRequest) error
 	QueryUserByUUID(uuid uuid.UUID) error
 	ResetPassword(req *apimodel.UserChangePWRequest) error
+	FreshToken(c *gin.Context) (string, error)
+	LogOut(c *gin.Context) error
 
 	//路由管理
 	CreateRouter(req *apimodel.RoutersInfoRequest) error
@@ -34,7 +36,7 @@ type Operator interface {
 	CreateRole(req *apimodel.RoleInfoRequest) error
 	QueryRoleList(req *apimodel.RoleInfoRequest) (*apimodel.RoleInfoPageResponse, error)
 	DeleteRole(req *apimodel.RoleInfoRequest) error
-	UpdateRole(req *apimodel.RoleInfoRequest) error
+	UpdateRole(req *apimodel.RoleInfoRequest) error //修改角色内容的同时重新配置casbin_rule表
 
 	//车辆
 	CreateTrain(req *apimodel.TrainInfoRequest) error

@@ -1,20 +1,25 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid/v5"
 	"github.com/jinzhu/copier"
 	log "github.com/wonderivan/logger"
+	"strconv"
 	"ticket-service/api/apimodel"
 	config "ticket-service/conf"
 	"ticket-service/database/model"
 	"ticket-service/httpserver/errcode"
 	"ticket-service/pkg/utils"
+	"ticket-service/pkg/utils/redis"
 	"time"
 )
 
 const ResetPassword = "123456"
+const TokenRedisKey = "Authorization-user:"
+const RedisLockKey = "redisLock"
 
 func (operator *ResourceOperator) Login(c *gin.Context, req apimodel.UserInfoRequest) (*apimodel.LoginResponse, error) {
 	var opt model.User
@@ -40,6 +45,7 @@ func (operator *ResourceOperator) Login(c *gin.Context, req apimodel.UserInfoReq
 	claims := j.CreateClaims(utils.BaseClaims{
 		UUID:     opt.UUID,
 		ID:       uint64(opt.ID),
+		UserID:   opt.ID,
 		Username: opt.Username,
 		RoleName: roleName,
 	})
@@ -47,10 +53,16 @@ func (operator *ResourceOperator) Login(c *gin.Context, req apimodel.UserInfoReq
 	if err != nil {
 		return nil, fmt.Errorf(errcode.ErrorMsgUnauthorized)
 	}
+	_, err = redis.RedisClient.Set(TokenRedisKey+strconv.Itoa(opt.ID), token, time.Hour*24*7).Result()
+	if err != nil {
+		log.Error("Login.token写入redis失败 err:[%v]", err)
+		return nil, err
+	}
 	utils.SetToken(c, token, int(claims.RegisteredClaims.ExpiresAt.Unix()-time.Now().Unix()))
 	resp.Load(opt)
 	resp.Token = token
 	resp.ExpireAt = claims.RegisteredClaims.ExpiresAt.Unix() * 1000
+
 	return &resp, nil
 }
 
@@ -279,5 +291,122 @@ func (operator *ResourceOperator) ResetPassword(req *apimodel.UserChangePWReques
 		log.Error("用户数据更新失败. err:[%v]", err)
 		return err
 	}
+	return nil
+}
+
+func (operator *ResourceOperator) FreshToken(c *gin.Context) (string, error) {
+	token := utils.GetToken(c)
+	j := utils.NewJWT()
+	claims, err := j.ParseToken(token)
+	if err != nil {
+		if errors.Is(err, utils.TokenExpired) {
+			claims, err = j.ParseExpireToken(token)
+			if err != nil {
+				log.Error("解析token失败,err:[%v]", err)
+				return "", fmt.Errorf(errcode.ErrorMsgInvalidToken)
+			}
+		} else {
+			log.Error("解析token失败,err:[%v]", err)
+			return "", fmt.Errorf(errcode.ErrorMsgInvalidToken)
+		}
+	}
+
+	// 获取uid
+	// 拼装redis key,验证有效性在30s内 return
+	// set nx 获取分布式锁
+	// 生成新的token
+	// 写入redis
+	// 释放分布式锁
+
+	tokenDB, _ := redis.RedisClient.Get(TokenRedisKey + strconv.Itoa(claims.UserID)).Result()
+	if tokenDB == "" {
+		//redis中没有token => 代表用户退出登录清除token 或 redis中token过期 => 告诉前端需要重新登录
+		return "", fmt.Errorf(errcode.ErrorMsgNeedReLogin)
+	}
+	j = utils.NewJWT()
+	claimsDB, err := j.ParseToken(tokenDB)
+	if err != nil {
+		if errors.Is(err, utils.TokenExpired) {
+			claimsDB, err = j.ParseExpireToken(tokenDB)
+			if err != nil {
+				log.Error("解析token失败,err:[%v]", err)
+				return "", fmt.Errorf(errcode.ErrorMsgInvalidToken)
+			}
+		} else {
+			log.Error("解析token失败,err:[%v]", err)
+			return "", fmt.Errorf(errcode.ErrorMsgInvalidToken)
+		}
+	}
+	if time.Now().Unix()-claimsDB.IssuedAt.Unix() < 30 {
+		//若30秒内则判断为重复请求,返回原token
+		return tokenDB, nil
+	}
+	//生成新token返回
+	j = &utils.JWT{SigningKey: []byte(config.Conf.JWT.SigningKey)} // 唯一签名
+	newClaims := j.CreateClaims(utils.BaseClaims{
+		UUID:     claims.UUID,
+		ID:       uint64(claims.UserID),
+		UserID:   claims.UserID,
+		Username: claims.Username,
+		RoleName: claims.RoleName,
+	})
+	tokenRes, err := j.CreateToken(newClaims)
+	if err != nil {
+		return "", fmt.Errorf(errcode.ErrorMsgUnauthorized)
+	}
+	//直接使用setNX，新token不会覆盖旧token，没办法做到废弃之前的token，从而达到刷新的效果
+	maxRetries := 3
+	var uid string
+	for i := 0; i < maxRetries; i++ {
+		uid, err = redis.LockWithTimeout(RedisLockKey, time.Second*3, time.Second*1)
+		if errors.Is(err, redis.LockError) {
+			log.Error("redis分布式锁获取失败，继续重试 err:[%v] ", err)
+			time.Sleep(time.Second * 1)
+		}
+	}
+	defer func() {
+		//释放分布式锁
+		if err = redis.UnLock(RedisLockKey, uid); err != nil {
+			if errors.Is(err, redis.UnLockError) {
+				log.Error("释放分布式锁失败 err:[%v] uid:[%v]", err, uid)
+				return
+			}
+		}
+	}()
+	if uid == "" {
+		log.Error("获取分布式锁失败,err:[%v]", err)
+		return "", fmt.Errorf(errcode.ErrorMsgRedisLock)
+	}
+	_, err = redis.RedisClient.Set(TokenRedisKey+strconv.Itoa(claims.UserID), tokenRes, time.Hour*24*3).Result()
+	if err != nil {
+		log.Error("fresh token写入redis失败 err:[%v]", err)
+		return "", fmt.Errorf(errcode.ErrorMsgWriteRedis)
+	}
+	utils.SetToken(c, tokenRes, int(claims.RegisteredClaims.ExpiresAt.Unix()-time.Now().Unix()))
+	return tokenRes, nil
+}
+
+func (operator *ResourceOperator) LogOut(c *gin.Context) error {
+	token := utils.GetToken(c)
+	j := utils.NewJWT()
+	claims, err := j.ParseToken(token)
+	if err != nil {
+		if errors.Is(err, utils.TokenExpired) {
+			claims, err = j.ParseExpireToken(token)
+			if err != nil {
+				log.Error("解析token失败,err:[%v]", err)
+				return fmt.Errorf(errcode.ErrorMsgInvalidToken)
+			}
+		} else {
+			log.Error("解析token失败,err:[%v]", err)
+			return fmt.Errorf(errcode.ErrorMsgInvalidToken)
+		}
+	}
+	_, err = redis.RedisClient.Del(TokenRedisKey + strconv.Itoa(claims.UserID)).Result()
+	if err != nil {
+		log.Error("删除redis缓存失败,err:[%v]", err)
+		return fmt.Errorf(errcode.ErrorMsgDelRedis)
+	}
+	utils.ClearToken(c)
 	return nil
 }

@@ -49,6 +49,8 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 
 	//验证码
 	v1.GET("/get_captcha", restHandler.GetCaptcha)
+	//token失效刷新token用
+	v1.GET("/fresh_token", restHandler.FreshToken)
 
 	v1.Use(middleware.JWTAuth())
 	v1.Group("")
@@ -60,6 +62,7 @@ func RegisterRoutes(router *gin.Engine, middlewares []gin.HandlerFunc) {
 		v1.DELETE("/delete_user/:id", restHandler.DeleteUser)
 		v1.POST("/change_password", restHandler.ChangePassword)
 		v1.POST("/reset_password", restHandler.ResetPassword)
+		v1.POST("/log_out", restHandler.LogOut)
 
 		//验证码
 		v1.POST("/check_captcha", restHandler.CheckCaptcha)

@@ -190,3 +190,22 @@ func (handler *RestHandler) CheckCaptcha(c *gin.Context) {
 	}
 	app.Success(c, nil)
 }
+
+// FreshToken 刷新token接口
+func (handler *RestHandler) FreshToken(c *gin.Context) {
+	resp, err := handler.Operator.FreshToken(c)
+	if err != nil {
+		app.SendAuthorizedErrorResponse(c, err.Error())
+		return
+	}
+	app.Success(c, resp)
+}
+
+func (handler *RestHandler) LogOut(c *gin.Context) {
+	err := handler.Operator.LogOut(c)
+	if err != nil {
+		app.SendServerErrorResponse(c, errcode.ErrorMsgUserLogin, err)
+		return
+	}
+	app.Success(c, nil)
+}

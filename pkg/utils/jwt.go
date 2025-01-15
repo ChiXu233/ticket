@@ -22,6 +22,7 @@ type CustomClaims struct {
 type BaseClaims struct {
 	UUID        uuid.UUID
 	ID          uint64
+	UserID      int
 	Username    string
 	RoleName    string
 	AuthorityId uint
@@ -51,8 +52,9 @@ func (j *JWT) CreateClaims(baseClaims BaseClaims) CustomClaims {
 		RegisteredClaims: jwt.RegisteredClaims{
 			//Audience:  jwt.ClaimStrings{"GVA"},                   // 受众
 			NotBefore: jwt.NewNumericDate(time.Now().Add(-1000)), // 签名生效时间
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ep)),    // 过期时间 7天  配置文件
-			Issuer:    config.Conf.JWT.Issuer,                    // 签名的发行者
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ep)), // 过期时间 7天  配置文件
+			Issuer:    config.Conf.JWT.Issuer,                 // 签名的发行者
 		},
 	}
 	return claims
@@ -99,4 +101,15 @@ func (j *JWT) ParseToken(tokenString string) (*CustomClaims, error) {
 		return nil, TokenInvalid
 	}
 
+}
+
+func (j *JWT) ParseExpireToken(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return j.SigningKey, nil
+	})
+	if token != nil {
+		return token.Claims.(*CustomClaims), nil
+	} else {
+		return nil, err
+	}
 }

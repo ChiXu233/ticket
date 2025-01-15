@@ -27,6 +27,7 @@ type Database interface {
 	CreateEntity(table string, entity interface{}) error
 	BatchCreateEntity(table string, entities interface{}) error
 	SaveEntity(table string, updater interface{}) error
+	UpdateEntity(table string, updater interface{}) error
 	UpdateEntityByFilter(table string, filter map[string]interface{}, params model.QueryParams, updater interface{}) error
 	DeleteEntityByFilter(table string, filter map[string]interface{}, params model.QueryParams, mode interface{}) error
 
@@ -63,7 +64,7 @@ func InitDB() error {
 	}
 
 	if config.Conf.DB.InitTable {
-		resetTable(db)
+		//resetTable(db)
 		initTable(db)
 	}
 

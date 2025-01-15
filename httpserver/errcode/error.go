@@ -18,6 +18,8 @@ const (
 	ErrorMsgUnknownToken      = "无法识别token，用户不存在或签发人错误"
 	ErrorMsgUnknownAuthorized = "非法登录"
 	ErrorMsgExpireToken       = "token过期"
+	ErrorMsgNeedReLogin       = "登录失效，请重新登录"
+	ErrorMsgInvalidToken      = "无效token"
 	ErrorCodeNotfound         = 404
 	ErrorMsgNotfound          = "无资源错误"
 	ErrorMsgNotAuth           = "暂无权限"
@@ -64,6 +66,12 @@ const (
 	ErrorMsgTransactionOpen     = "事务开启失败"
 	ErrorMsgTransactionCommit   = "事务提交失败"
 	ErrorMsgTransactionRollback = "事务回滚失败"
+	ErrorMsgRedisLock           = "获取分布式锁失败"
+	ErrorMsgRedisUnLock         = "释放分布式锁失败"
+	ErrorMsgSetNX               = "写入redis失败"
+	ErrorMsgLogOut              = "退出登录失败"
+	ErrorMsgWriteRedis          = "写入redis失败"
+	ErrorMsgDelRedis            = "删除redis失败"
 )
 
 var (
@@ -99,6 +107,7 @@ var (
 		ErrorMsgSuffixParamNotExists,
 		ErrorMsgPrefixInvalidParameter,
 		ErrorMsgNoTickets,
+		ErrorMsgUnauthorized,
 	}
 
 	// PostProcessingMsg 通用的错误处理信息后置处理

@@ -16,16 +16,15 @@ func InitCasbin() error {
 	if err != nil {
 		return err
 	}
-	e, err := casbin.NewEnforcer("./conf/casbin.conf", adapter)
+	E, err = casbin.NewEnforcer("./conf/casbin.conf", adapter)
 	if err != nil {
 		return err
 	}
 	// 必须执行
-	err = e.LoadPolicy()
+	err = E.LoadPolicy()
 	if err != nil {
 		return err
 	}
-	E = e
 	initPolicy()
 	//初始化匹配器
 	InitEnforcer()
@@ -33,12 +32,6 @@ func InitCasbin() error {
 }
 
 func initPolicy() {
-	//// 加载权限组
-	//m := make([]*RoleRel, 0)
-	//GetRoles(0, &m, "")
-	//for _, r := range m {
-	//	E.AddRoleForUser(r.PRole, r.Role)
-	//}
 
 	// 加载用户和权限
 	userInfos := GetUserRoles()
@@ -51,4 +44,36 @@ func initPolicy() {
 	for _, router := range routers {
 		E.AddPolicy(router.RoleName, router.Uri, router.Method)
 	}
+}
+
+func DeleteRoleForUser(uName, rName string) error {
+	_, err := E.DeleteRoleForUser(uName, rName)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeletePolicy(roleName, Uri, Method string) error {
+	_, err := E.RemovePolicy(roleName, Uri, Method)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func AddRoleForUser(uName, rName string) error {
+	_, err := E.AddRoleForUser(uName, rName)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func AddPolicy(roleName, Uri, Method string) error {
+	_, err := E.AddPolicy(roleName, Uri, Method)
+	if err != nil {
+		return err
+	}
+	return nil
 }

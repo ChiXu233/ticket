@@ -254,6 +254,23 @@ func (db *OrmDB) SaveEntity(table string, updater interface{}) error {
 	return nil
 }
 
+// UpdateEntity 执行更新。更新实体对象，updater需要是对象，也可以是map，使用 struct 更新时, GORM 将只更新非零值字段。
+func (db *OrmDB) UpdateEntity(table string, updater interface{}) error {
+	if reflect.ValueOf(updater).Kind() != reflect.Ptr && reflect.ValueOf(updater).Kind() != reflect.Slice {
+		return errors.New("SaveEntity [updater] Kind Must Ptr Or Slice")
+	}
+	defer utils.TimeCost()(fmt.Sprintf("[%s]SaveEntity_timeCost", table))
+	tx := db.Table(table).Updates(updater)
+	if err := tx.Error; err != nil {
+		log.Error("[%s]UpdateEntity Error.updater[%#v] err[%#v]", table, updater, err)
+		return err
+	}
+	if tx.RowsAffected == 0 {
+		log.Warn("[%s]UpdateEntity Warn.updater[%#v]", table, updater)
+	}
+	return nil
+}
+
 // UpdateEntityByFilter 根据条件更新实体对象，updater是结构体指针，默认值字段不更新。为map指针，字段会更新（map不会触发逻辑更新操作！）
 func (db *OrmDB) UpdateEntityByFilter(table string, filter map[string]interface{}, params model.QueryParams, updater interface{}) error {
 	if reflect.ValueOf(updater).Kind() != reflect.Ptr {

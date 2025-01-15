@@ -1,9 +1,5 @@
 package casbin
 
-import (
-	"ticket-service/database/model"
-)
-
 type RoleRel struct {
 	PRole string
 	Role  string
@@ -22,21 +18,6 @@ type RoleRouterInfo struct {
 
 func (this *RoleRel) String() string {
 	return this.PRole + ":" + this.Role
-}
-
-// 获取角色
-func GetRoles(pid int, m *[]*RoleRel, pName string) {
-	proles := make([]*model.Role, 0)
-	DB.Where("pid=?", pid).Find(&proles)
-	if len(proles) == 0 {
-		return
-	}
-	for _, item := range proles {
-		if pName != "" {
-			*m = append(*m, &RoleRel{pName, item.Name})
-		}
-		GetRoles(item.ID, m, item.Name)
-	}
 }
 
 // 获取用户和角色

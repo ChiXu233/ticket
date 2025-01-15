@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/copier"
 	log "github.com/wonderivan/logger"
 	"ticket-service/api/apimodel"
+	"ticket-service/database/casbin"
 	"ticket-service/database/model"
 	"ticket-service/httpserver/errcode"
 )
@@ -165,7 +166,8 @@ func (operator *ResourceOperator) UpdateRole(req *apimodel.RoleInfoRequest) erro
 	//修改用户信息
 	selector := make(map[string]interface{})
 	selector[model.FieldID] = req.ID
-	err := operator.Database.ListEntityByFilter(model.TableNameRole, selector, model.OneQuery, &opt)
+	//预加载先前关联的role与routers
+	err := operator.Database.PreloadEntityByFilter(model.TableNameRole, selector, model.OneQuery, &opt, []string{model.PreloadUser, model.PreloadRouters})
 	if err != nil {
 		log.Error("查找角色失败. err:[%v]", err)
 		return err
@@ -173,47 +175,64 @@ func (operator *ResourceOperator) UpdateRole(req *apimodel.RoleInfoRequest) erro
 	if opt.ID <= 0 {
 		return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "id")
 	}
-	var userIds []int
-	if req.Users != nil {
-		for _, v := range req.Users {
-			userIds = append(userIds, v.ID)
-		}
-		var userDB []model.User
-		queryParams := model.QueryParams{}
-		inQueries := &model.InQuery{
-			Field:  model.FieldID,
-			Values: userIds,
-		}
-		queryParams.InQueries = append(queryParams.InQueries, inQueries)
-		err = operator.Database.ListEntityByFilter(model.TableNameUser, map[string]interface{}{}, queryParams, &userDB)
+	// todo 感觉没什么用？先注了试试
+	// todo 确实没用了
+	////查找传入的id是否有效
+	//var userIds []int
+	//if req.Users != nil {
+	//	for _, v := range req.Users {
+	//		userIds = append(userIds, v.ID)
+	//	}
+	//	var userDB []model.User
+	//	queryParams := model.QueryParams{}
+	//	inQueries := &model.InQuery{
+	//		Field:  model.FieldID,
+	//		Values: userIds,
+	//	}
+	//	queryParams.InQueries = append(queryParams.InQueries, inQueries)
+	//	err = operator.Database.ListEntityByFilter(model.TableNameUser, map[string]interface{}{}, queryParams, &userDB)
+	//	if err != nil {
+	//		log.Error("查找 role 对应 user_id. err:[%v]", err)
+	//		return err
+	//	}
+	//	if len(userDB) != len(userIds) {
+	//		return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "users")
+	//	}
+	//}
+	//
+	////判断传入的routers是否有效
+	//var routerIds []int
+	//if req.Routers != nil {
+	//	for _, v := range req.Routers {
+	//		routerIds = append(routerIds, v.ID)
+	//	}
+	//	var routerDB []model.Routers
+	//	queryParams := model.QueryParams{}
+	//	inQueries := &model.InQuery{
+	//		Field:  model.FieldID,
+	//		Values: routerIds,
+	//	}
+	//	queryParams.InQueries = append(queryParams.InQueries, inQueries)
+	//	err = operator.Database.ListEntityByFilter(model.TableNameRouters, map[string]interface{}{}, queryParams, &routerDB)
+	//	if err != nil {
+	//		log.Error("查找 role 对应 router_id. err:[%v]", err)
+	//		return err
+	//	}
+	//	if len(routerDB) != len(routerIds) {
+	//		return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "routers")
+	//	}
+	//}
+	//清除旧的casbin_rule表
+	for _, v := range opt.Users {
+		err = casbin.DeleteRoleForUser(v.Username, opt.Name)
 		if err != nil {
-			log.Error("查找 role 对应 user_id. err:[%v]", err)
 			return err
 		}
-		if len(userDB) != len(userIds) {
-			return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "users")
-		}
-
 	}
-	var routerIds []int
-	if req.Routers != nil {
-		for _, v := range req.Routers {
-			routerIds = append(routerIds, v.ID)
-		}
-		var routerDB []model.Routers
-		queryParams := model.QueryParams{}
-		inQueries := &model.InQuery{
-			Field:  model.FieldID,
-			Values: routerIds,
-		}
-		queryParams.InQueries = append(queryParams.InQueries, inQueries)
-		err = operator.Database.ListEntityByFilter(model.TableNameRouters, map[string]interface{}{}, queryParams, &routerDB)
+	for _, v := range opt.Routers {
+		err = casbin.DeletePolicy(opt.Name, v.Uri, v.Method)
 		if err != nil {
-			log.Error("查找 role 对应 router_id. err:[%v]", err)
 			return err
-		}
-		if len(routerDB) != len(routerIds) {
-			return fmt.Errorf(errcode.ErrorMsgSuffixParamNotExists, "routers")
 		}
 	}
 	//保持ID不变,暂存createTime、role字段（save方法全字段更新）
@@ -223,11 +242,72 @@ func (operator *ResourceOperator) UpdateRole(req *apimodel.RoleInfoRequest) erro
 	if err != nil {
 		return err
 	}
+
+	opt.Users = []model.User{}
+	opt.Routers = []model.Routers{}
+	_ = copier.Copy(&opt.Users, req.Users)
+	_ = copier.Copy(&opt.Routers, req.Routers)
 	opt.CreatedAt = CreateTime
-	err = operator.Database.SaveEntity(model.TableNameRole, &opt)
+	err = operator.Database.UpdateEntity(model.TableNameRole, &opt)
 	if err != nil {
 		log.Error("数据更新失败. err:[%v]", err)
 		return err
+	}
+	var userIds, routerIds []int
+	for _, v := range req.Users {
+		userIds = append(userIds, v.ID)
+	}
+	for _, k := range req.Routers {
+		routerIds = append(routerIds, k.ID)
+	}
+	selector = make(map[string]interface{})
+	selector[model.FieldRoleID] = req.ID
+	queryParams := model.QueryParams{}
+	queryParams.NotInQueries = []map[string]interface{}{
+		//notIn查询
+		{
+			"user_id": userIds,
+		},
+	}
+
+	err = operator.Database.DeleteEntityByFilter(model.TableNameUserRoles, selector, queryParams, &model.UserRoles{})
+	if err != nil {
+		log.Error("删除原关联角色失败. err:[%v]", err)
+		return err
+	}
+	queryParams = model.QueryParams{}
+	queryParams.NotInQueries = []map[string]interface{}{
+		//notIn查询
+		{
+			"routers_id": routerIds,
+		},
+	}
+	err = operator.Database.DeleteEntityByFilter(model.TableNameRoleRouters, selector, queryParams, &model.RoleRouters{})
+	if err != nil {
+		log.Error("删除原关联router失败. err:[%v]", err)
+		return err
+	}
+
+	//重新配置casbin_rule表
+	selector = make(map[string]interface{})
+	selector[model.FieldID] = req.ID
+	err = operator.Database.PreloadEntityByFilter(model.TableNameRole, selector, model.OneQuery, &opt, []string{model.PreloadUser, model.PreloadRouters})
+	if err != nil {
+		log.Error("查找角色失败. err:[%v]", err)
+		return err
+	}
+
+	for _, v := range opt.Users {
+		err = casbin.AddRoleForUser(v.Username, opt.Name)
+		if err != nil {
+			return err
+		}
+	}
+	for _, v := range opt.Routers {
+		err = casbin.AddPolicy(opt.Name, v.Uri, v.Method)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

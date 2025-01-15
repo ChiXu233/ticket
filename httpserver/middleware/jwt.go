@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid/v5"
 	"github.com/golang-jwt/jwt/v4"
+	log "github.com/wonderivan/logger"
 	"strconv"
 	"ticket-service/api/handler"
 	config "ticket-service/conf"
@@ -12,6 +13,7 @@ import (
 	"ticket-service/httpserver/app"
 	"ticket-service/httpserver/errcode"
 	"ticket-service/pkg/utils"
+	"ticket-service/pkg/utils/redis"
 	"time"
 )
 
@@ -51,6 +53,15 @@ func JWTAuth() gin.HandlerFunc {
 			return
 		}
 
+		//判断token是否有效
+		tokenDB, _ := redis.RedisClient.Get("Authorization-user:" + strconv.Itoa(claims.UserID)).Result()
+		if tokenDB != token {
+			app.SendAuthorizedErrorResponse(c, errcode.ErrorMsgInvalidToken)
+			utils.ClearToken(c)
+			c.Abort()
+			return
+		}
+
 		//判断该token所携带用户信息是否正确
 		if claims.Issuer != config.Conf.JWT.Issuer {
 			app.SendAuthorizedErrorResponse(c, errcode.ErrorMsgUnknownToken)
@@ -72,6 +83,7 @@ func JWTAuth() gin.HandlerFunc {
 		if has, err := casbin.E.Enforce(claims.RoleName, c.Request.URL.Path, c.Request.Method); err != nil || !has {
 			app.SendAuthorizedErrorResponse(c, errcode.ErrorMsgNotAuth)
 			c.Abort()
+			return
 		}
 
 		c.Set("claims", claims)
@@ -85,7 +97,12 @@ func JWTAuth() gin.HandlerFunc {
 			c.Header("new-token", newToken)
 			c.Header("new-expires-at", strconv.FormatInt(newClaims.ExpiresAt.Unix(), 10))
 			utils.SetToken(c, newToken, int(dr.Seconds()))
-
+			_, err = redis.RedisClient.Set("Authorization-user:"+strconv.Itoa(claims.UserID), token, time.Hour*24*7).Result()
+			if err != nil {
+				log.Error("缓冲时间.token写入redis失败 err:[%v]", err)
+				c.Abort()
+				return
+			}
 			//单点登录
 			//if global.CONFIG.System.UseMultipoint {
 			//	RedisJwtToken, err := jwtService.GetRedisJWT(newClaims.Username)

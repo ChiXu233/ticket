@@ -7,18 +7,18 @@ app:
 #华为-Mysql
 #db:
 #  name:         ticket
-#  host:         120.46.48.255
+#  host:         
 #  user:         root
 #  password:     root
 #  port:         3306
 
 #腾讯云-Mysql
 db:
-  name:         ticket
-  host:         82.157.206.194
-  user:         root
-  password:     Sdl@admin
-  port:         3306
+  name:         
+  host:        
+  user:         
+  password:     
+  port:         
 
 #华为-redis
 #redis:
@@ -27,9 +27,9 @@ db:
 #  password:     ""
 
 redis:
-  host:         82.157.206.194
-  port:         6379
-  password:     "root"
+  host:        
+  port:         
+  password:     
 jwt:
   signing-key: root
   expires-time: 7d
